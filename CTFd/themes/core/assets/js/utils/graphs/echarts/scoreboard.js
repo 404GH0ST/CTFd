@@ -22,14 +22,6 @@ export function getOption(mode, places, optionMerge) {
       bottom: 35,
       data: [],
     },
-    toolbox: {
-      feature: {
-        dataZoom: {
-          yAxisIndex: "none",
-        },
-        saveAsImage: {},
-      },
-    },
     grid: {
       containLabel: true,
     },
@@ -43,17 +35,6 @@ export function getOption(mode, places, optionMerge) {
     yAxis: [
       {
         type: "value",
-      },
-    ],
-    dataZoom: [
-      {
-        id: "dataZoomX",
-        type: "slider",
-        xAxisIndex: [0],
-        filterMode: "filter",
-        height: 20,
-        top: 35,
-        fillerColor: "rgba(233, 236, 241, 0.4)",
       },
     ],
     series: [],

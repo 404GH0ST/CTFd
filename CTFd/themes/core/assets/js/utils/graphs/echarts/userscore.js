@@ -22,11 +22,6 @@ export function getOption(id, name, solves, awards, optionMerge) {
       bottom: 0,
       data: [name],
     },
-    toolbox: {
-      feature: {
-        saveAsImage: {},
-      },
-    },
     grid: {
       containLabel: true,
     },
@@ -40,17 +35,6 @@ export function getOption(id, name, solves, awards, optionMerge) {
     yAxis: [
       {
         type: "value",
-      },
-    ],
-    dataZoom: [
-      {
-        id: "dataZoomX",
-        type: "slider",
-        xAxisIndex: [0],
-        filterMode: "filter",
-        height: 20,
-        top: 35,
-        fillerColor: "rgba(233, 236, 241, 0.4)",
       },
     ],
     series: [],

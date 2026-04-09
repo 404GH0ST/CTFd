@@ -1,91 +1,74 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class="jumbotron">
+  <section class="page-hero page-hero-compact">
     <div class="container">
-      <h1>{{ user.name }}</h1>
+      <div class="page-head profile-head">
+        <p class="eyebrow">{% trans %}User{% endtrans %}</p>
+        <h1>{{ user.name }}</h1>
 
-      {% if user.team_id %}
-        <h2>
-          <a href="{{ url_for('teams.public', team_id=user.team_id) }}">
-            <span class="badge bg-secondary">
-              {{ user.team.name }}
-            </span>
-          </a>
-        </h2>
-      {% endif %}
-
-      <div class="pt-2">
-        {% if user.oauth_id %}
-          <a href="https://majorleaguecyber.org/u/{{ user.name }}">
-            <h3 class="d-inline-block mx-1"><span class="badge rounded-pill bg-primary">{% trans %}Official{% endtrans %}</span></h3>
-          </a>
+        {% if user.team_id %}
+          <p class="profile-subhead">
+            <a href="{{ url_for('teams.public', team_id=user.team_id) }}">{{ user.team.name }}</a>
+          </p>
         {% endif %}
 
-        {% if user.affiliation %}
-          <h3 class="d-inline-block mx-1">
+        <div class="profile-badges">
+          {% if user.oauth_id %}
+            <a href="https://majorleaguecyber.org/u/{{ user.name }}">
+              <span class="badge rounded-pill bg-primary">{% trans %}Official{% endtrans %}</span>
+            </a>
+          {% endif %}
+
+          {% if user.affiliation %}
             <span class="badge rounded-pill bg-primary">{{ user.affiliation }}</span>
-          </h3>
-        {% endif %}
+          {% endif %}
 
-        {% if user.country %}
-          <h3 class="d-inline-block mx-1">
+          {% if user.country %}
             <span class="badge rounded-pill bg-primary">
-                <i class="flag-{{ user.country.lower() }}"></i>
-                {{ lookup_country_code(user.country) }}
+              <i class="flag-{{ user.country.lower() }}"></i>
+              {{ lookup_country_code(user.country) }}
             </span>
-          </h3>
-        {% endif %}
-      </div>
+          {% endif %}
 
-      {% if user.bracket_id %}
-        <div class="pt-2">
-          <h2>
-            <span class="badge text-bg-light">
-              {{ user.bracket.name }}
-            </span>
-          </h2>
+          {% if user.bracket_id %}
+            <span class="badge bg-secondary">{{ user.bracket.name }}</span>
+          {% endif %}
         </div>
-      {% endif %}
 
-      <div class="pt-2">
-        {% for field in user.fields %}
-          <h3 class="d-block">
-            {{ field.name }}: {{ field.value }}
-          </h3>
-        {% endfor %}
-      </div>
+        {% if user.fields %}
+          <div class="profile-fields">
+            {% for field in user.fields %}
+              <p><strong>{{ field.name }}:</strong> {{ field.value }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
 
-      {% if user.fields %}
-        <hr class="w-50 mx-auto">
-      {% endif %}
+        <div class="profile-stats">
+          <div class="profile-stat">
+            <span>{% trans %}Place{% endtrans %}</span>
+            <strong>{% if account.place %}{{ account.place }}{% else %}&mdash;{% endif %}</strong>
+          </div>
+          <div class="profile-stat">
+            <span>{% trans %}Points{% endtrans %}</span>
+            <strong>{% if account.place %}{{ account.score }}{% else %}0{% endif %}</strong>
+          </div>
+        </div>
 
-      <div>
-        <h2 class="text-center">
-          {% if account.place %}
-            {{ account.place }} <small>place</small>
-          {% endif %}
-        </h2>
-        <h2 class="text-center">
-          {% if account.place %}
-            {{ account.score }} <small>points</small>
-          {% endif %}
-        </h2>
-      </div>
-
-      <div class="pt-3">
         {% if user.website %}
-          <a href="{{ user.website }}" target="_blank" style="color: inherit;" rel="noopener">
-            <i
-                class="fas fa-external-link-alt fa-2x px-2" data-toggle="tooltip" data-placement="top"
-                title="{{ user.website }}"
-            ></i>
-          </a>
+          <div class="profile-links">
+            <a href="{{ user.website }}" target="_blank" rel="noopener noreferrer" class="profile-link">
+              <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+              <span>{% trans %}Visit website{% endtrans %}</span>
+            </a>
+          </div>
         {% endif %}
       </div>
     </div>
-  </div>
-  <div class="container">
+  </section>
+
+  <section class="page-section">
+    <div class="container profile-content">
     {% include "components/errors.html" %}
 
     {% set solves = user.solves %}
@@ -93,30 +76,28 @@
     {% if solves or awards %}
 
       {% if awards %}
-        <div class="row">
-          <div class="col-md-12">
-            <h3>{% trans %}Awards{% endtrans %}</h3>
-          </div>
+        <section class="profile-section-panel">
+          <h3 class="profile-section-heading">{% trans %}Awards{% endtrans %}</h3>
+          <div class="profile-awards-grid">
           {% for award in awards %}
-            <div class="col-md-3 col-sm-6">
-              <p class="text-center">
+            <article class="profile-award-card">
+              <p>
                 <i class="award-icon award-{{ award.icon }} fa-2x"></i>
                 <br>
                 <strong>{{ award.name }}</strong>
               </p>
-              <p class="text-center">{{ award.category or "" }}</p>
-              <p class="text-center">{{ award.description or "" }}</p>
-              <p class="text-center">{{ award.value }}</p>
-            </div>
+              <p>{{ award.category or "" }}</p>
+              <p>{{ award.description or "" }}</p>
+              <p>{{ award.value }}</p>
+            </article>
           {% endfor %}
-        </div>
+          </div>
+        </section>
       {% endif %}
 
-      <br>
-
-      <div class="row">
-        <div class="col-md-12">
-          <h3>Solves</h3>
+      <section class="profile-section-panel">
+        <h3 class="profile-section-heading">{% trans %}Solves{% endtrans %}</h3>
+        <div class="profile-table-wrap">
           <table class="table table-striped align-middle">
             <thead>
             <tr>
@@ -144,12 +125,11 @@
             </tbody>
           </table>
         </div>
-      </div>
+      </section>
 
-      <div class="clearfix"></div>
-
-      <div class="row" x-data="UserGraphs">
-        <div class="col-md-6 d-none d-md-block d-lg-block py-4">
+      <section class="profile-section-panel profile-chart-grid" x-data="UserGraphs">
+        <div class="profile-chart-panel">
+          <h3>{% trans %}Attempt rate{% endtrans %}</h3>
           <div class="progress">
             <div 
               class="progress-bar" 
@@ -164,20 +144,23 @@
             >
             </div>
           </div>
-          <div class="ps-2 float-start">
-            <svg height="16" width="16">
-              <circle cx="8" cy="8" r="5" fill="rgb(0, 209, 64)" />
-            </svg>
-            <small x-text="`Solves (${getSolvePercentage()}%)`"></small>
-          </div>
-          <div class="ps-2 float-start">
-            <svg height="16" width="16">
-              <circle cx="8" cy="8" r="5" fill="rgb(207, 38, 0)" />
-            </svg>
-            <small x-text="`Fails (${getFailPercentage()}%)`"></small>
+          <div class="profile-legend">
+            <div class="profile-legend-item">
+              <svg height="16" width="16">
+                <circle cx="8" cy="8" r="5" fill="rgb(0, 209, 64)" />
+              </svg>
+              <small x-text="`${window.STATS_TEXT.solves} (${getSolvePercentage()}%)`"></small>
+            </div>
+            <div class="profile-legend-item">
+              <svg height="16" width="16">
+                <circle cx="8" cy="8" r="5" fill="rgb(207, 38, 0)" />
+              </svg>
+              <small x-text="`${window.STATS_TEXT.fails} (${getFailPercentage()}%)`"></small>
+            </div>
           </div>
         </div>
-        <div class="col-md-6 d-none d-md-block d-lg-block py-4">
+        <div class="profile-chart-panel">
+          <h3>{% trans %}Category breakdown{% endtrans %}</h3>
           <div class="progress">
             <template x-for="category in getCategoryBreakdown()" :key="category.name">
               <div 
@@ -188,38 +171,43 @@
               </div>
             </template>
           </div>
-          <template x-for="category in getCategoryBreakdown()" :key="category.name">
-            <div class="ps-2 float-start">
-              <svg height="16" width="16">
-                <circle cx="8" cy="8" r="5" :fill="category.color" />
-              </svg>
-              <small x-text="`${category.name} (${category.percent}%)`"></small>
-            </div>
-          </template>
+          <div class="profile-legend">
+            <template x-for="category in getCategoryBreakdown()" :key="category.name">
+              <div class="profile-legend-item">
+                <svg height="16" width="16">
+                  <circle cx="8" cy="8" r="5" :fill="category.color" />
+                </svg>
+                <small x-text="`${category.name} (${category.percent}%)`"></small>
+              </div>
+            </template>
+          </div>
         </div>
 
-        <br class="clearfix">
-
-        <div class="col-md-12 d-none d-md-block d-lg-block py-4">
+        <div class="profile-chart-panel profile-chart-panel-full">
+          <h3>{% trans %}Score history{% endtrans %}</h3>
           <div id="score-graph" x-ref="scoregraph" class="w-100 d-flex align-items-center">
             <div class="text-center w-100">
               <i class="fas fa-circle-notch fa-spin fa-3x fa-fw spinner"></i>
             </div>
           </div>
         </div>
-      </div>
+      </section>
     {% else %}
-      <div class="row min-vh-25">
-        <h3 class="opacity-50 text-center w-100 justify-content-center align-self-center">
-          {% trans %}No solves yet{% endtrans %}
-        </h3>
+      <div class="empty-state">
+        <p class="eyebrow">{% trans %}No activity{% endtrans %}</p>
+        <h3>{% trans %}No solves yet{% endtrans %}</h3>
       </div>
     {% endif %}
-  </div>
+    </div>
+  </section>
 {% endblock %}
 
 {% block scripts %}
   <script>
+      window.STATS_TEXT = {
+      'solves': {{ _("Solves") | tojson }},
+      'fails': {{ _("Fails") | tojson }},
+    };
       window.USER = {{ {
       'type': 'user',
       'id': user.id,

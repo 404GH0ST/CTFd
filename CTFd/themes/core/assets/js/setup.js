@@ -30,7 +30,9 @@ Alpine.data("SetupForm", () => ({
       if (event.key == "integrations" && event.newValue) {
         let integration = JSON.parse(event.newValue);
         if (integration["name"] == "mlc") {
-          $("#integration-mlc").text("Already Configured").attr("disabled", true);
+          $("#integration-mlc")
+            .text(window.SETUP_TEXT?.configured || "Already configured")
+            .attr("disabled", true);
           window.focus();
           localStorage.removeItem("integrations");
         }
@@ -39,12 +41,18 @@ Alpine.data("SetupForm", () => ({
   },
 
   validateFileSize(e, limit) {
+    if (!e.target.files || e.target.files.length === 0) {
+      return;
+    }
+
     if (e.target.files[0].size > limit) {
       if (
         !confirm(
-          `This image file is larger than ${
-            limit / 1000
-          }KB which may result in increased load times. Are you sure you'd like to use this file?`,
+          (window.SETUP_TEXT?.largeFileWarning || "")
+            .replace("__LIMIT__", limit / 1000) ||
+            `This image file is larger than ${
+              limit / 1000
+            }KB and may slow page loads. Do you want to keep it?`,
         )
       ) {
         e.target.value = "";
@@ -55,7 +63,7 @@ Alpine.data("SetupForm", () => ({
   switchTab(e) {
     // Handle tab validation
     let valid_tab = true;
-    let inputs = e.target
+    let inputs = e.currentTarget
       .closest('[role="tabpanel"]')
       .querySelectorAll("input,textarea");
 
@@ -70,7 +78,7 @@ Alpine.data("SetupForm", () => ({
       return;
     }
 
-    let target = e.target.dataset.href;
+    let target = e.currentTarget.dataset.href;
     let tab = this.$root.querySelector(`[data-bs-target="${target}"]`);
     Tab.getOrCreateInstance(tab).show();
   },
@@ -85,20 +93,18 @@ Alpine.data("SetupForm", () => ({
   },
 
   processDateTime(datetime) {
-    return function (_event) {
-      let date_picker = document.querySelector(`#${datetime}-date`);
-      let time_picker = document.querySelector(`#${datetime}-time`);
-      let unix_time = dayjs(
-        `${date_picker.value} ${time_picker.value}`,
-        "YYYY-MM-DD HH:mm",
-      ).unix();
+    let date_picker = document.querySelector(`#${datetime}-date`);
+    let time_picker = document.querySelector(`#${datetime}-time`);
+    let unix_time = dayjs(
+      `${date_picker.value} ${time_picker.value}`,
+      "YYYY-MM-DD HH:mm",
+    ).unix();
 
-      if (isNaN(unix_time)) {
-        document.querySelector(`#${datetime}-preview`).value = "";
-      } else {
-        document.querySelector(`#${datetime}-preview`).value = unix_time;
-      }
-    };
+    if (isNaN(unix_time)) {
+      document.querySelector(`#${datetime}-preview`).value = "";
+    } else {
+      document.querySelector(`#${datetime}-preview`).value = unix_time;
+    }
   },
 
   mlcSetup() {

@@ -5,6 +5,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="shortcut icon" href="{{ Configs.ctf_small_icon }}" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap"
+  >
 
   {{ meta | safe }}
 
@@ -35,11 +41,16 @@
             "/themes/core/static/sounds/notification.mp3",
           ],
       }
+      window.ctfdThemeText = {
+          copied: {{ _("Copied!") | tojson }},
+      }
   </script>
 
   {{ Configs.theme_header }}
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
+<div class="site-chroma site-chroma-a" aria-hidden="true"></div>
+<div class="site-chroma site-chroma-b" aria-hidden="true"></div>
 {% include "components/navbar.html" %}
 
 <main role="main">
@@ -50,12 +61,20 @@
 {% include "components/snackbar.html" %}
 
 <footer class="footer">
-  <div class="container text-center">
-    <a href="https://ctfd.io" class="text-secondary">
-      <small class="text-muted">
-        {% trans %}Powered by CTFd{% endtrans %}
-      </small>
-    </a>
+  <div class="container">
+    <div class="footer-shell">
+      <div class="footer-meta">
+        <p class="footer-kicker">{{ Configs.ctf_name }}</p>
+        <small class="footer-note text-muted">
+          {% trans %}Competitive security, presented through CTFd.{% endtrans %}
+        </small>
+      </div>
+      <a href="https://ctfd.io" class="footer-credit text-secondary">
+        <small class="footer-note text-muted">
+          {% trans %}Powered by CTFd{% endtrans %}
+        </small>
+      </a>
+    </div>
   </div>
 </footer>
 

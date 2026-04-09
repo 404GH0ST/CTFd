@@ -1,6 +1,3 @@
-/* Table styles
--------------------------------------------------- */
-
 // Center text in table cells, except the first cell
 .table tr > :not(:first-child) {
   text-align: center;
@@ -19,4 +16,8 @@
 // Do not wrap text in table headers
 .table > thead > th {
   white-space: nowrap;
+}
+
+.table-responsive {
+  border-radius: 1.25rem;
 }

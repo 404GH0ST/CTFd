@@ -1,17 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class="jumbotron">
+  <section class="page-hero page-hero-compact">
     <div class="container">
-      <h1>
-        {% trans %}Login{% endtrans %}
-      </h1>
+      <div class="page-head">
+        <p class="eyebrow">{% trans %}Account access{% endtrans %}</p>
+        <h1>{% trans %}Login{% endtrans %}</h1>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <div class="container">
-    <div class="row">
-      <div class="col-md-8 col offset-md-2 col-lg-6 offset-lg-3">
+  <section class="page-section">
+    <div class="container">
+        <div class="auth-panel form-panel form-panel-narrow">
         {% include "components/errors.html" %}
 
         {% if integrations.mlc() %}
@@ -55,7 +56,7 @@
             {{ form.nonce() }}
           </form>
         {% endwith %}
-      </div>
+        </div>
     </div>
-  </div>
+  </section>
 {% endblock %}

@@ -1,20 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class="jumbotron">
+  <section class="page-hero page-hero-compact">
     <div class="container">
-      <h1>{% trans %}Team{% endtrans %}</h1>
-    </div>
-  </div>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-6 offset-md-3 text-center">
-        <p class="h2">{% trans %}Welcome to{% endtrans %} {{ Configs.ctf_name }}!</p>
-        <p>
-          {% trans %}In order to participate you must either join or create a team.{% endtrans %}
-        </p>
+      <div class="page-head">
+        <p class="eyebrow">{% trans %}Team setup{% endtrans %}</p>
+        <h1>{% trans %}Team{% endtrans %}</h1>
+        <p class="lede">{% trans ctf_name=Configs.ctf_name %}Welcome to {{ ctf_name }}. To participate, you need to join an existing team or create a new one.{% endtrans %}</p>
       </div>
     </div>
+  </section>
+  <section class="page-section">
+    <div class="container">
+      <div class="page-panel form-panel">
 
     {% if integrations.mlc() %}
       <div class="row">
@@ -40,5 +38,7 @@
         </div>
       </div>
     {% endif %}
-  </div>
+      </div>
+    </div>
+  </section>
 {% endblock %}

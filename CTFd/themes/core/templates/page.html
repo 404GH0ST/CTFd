@@ -1,9 +1,85 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class="container">
-    {{ content | safe }}
-  </div>
+  {% if request.path == "/" %}
+    <section class="page-hero page-hero-home">
+      <div class="container">
+        <div class="page-hero-grid">
+          <div class="page-hero-copy">
+            <p class="eyebrow">{% trans %}CTF platform{% endtrans %}</p>
+            <h1>{{ Configs.ctf_name }}</h1>
+            <p class="lede">
+              {% trans %}Solve challenges, follow the scoreboard, and manage the event from one place.{% endtrans %}
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="{{ url_for('challenges.listing') }}">
+                {% trans %}Open Challenges{% endtrans %}
+              </a>
+              {% if authed() %}
+                <a class="btn btn-secondary" href="{{ url_for('scoreboard.listing') }}">
+                  {% trans %}View Scoreboard{% endtrans %}
+                </a>
+              {% elif registration_visible() %}
+                <a class="btn btn-secondary" href="{{ url_for('auth.register') }}">
+                  {% trans %}Create Account{% endtrans %}
+                </a>
+              {% else %}
+                <a class="btn btn-secondary" href="{{ url_for('auth.login') }}">
+                  {% trans %}Enter Platform{% endtrans %}
+                </a>
+              {% endif %}
+            </div>
+          </div>
+          <div class="hero-panel hero-panel-rail">
+            <div class="hero-panel-copy">
+              <p class="eyebrow">{% trans %}Event details{% endtrans %}</p>
+              <h2>{% trans %}Ready for the event{% endtrans %}</h2>
+            </div>
+            <div class="hero-metrics">
+              <div>
+                <span>{% trans %}Mode{% endtrans %}</span>
+                <strong>{{ get_mode_as_word(capitalize=True) }}</strong>
+              </div>
+              <div>
+                <span>{% trans %}Format{% endtrans %}</span>
+                <strong>{{ Configs.user_mode | capitalize }}</strong>
+              </div>
+              <div>
+                <span>{% trans %}Access{% endtrans %}</span>
+                <strong>{% if authed() %}{% trans %}Logged in{% endtrans %}{% else %}{% trans %}Open to visitors{% endtrans %}{% endif %}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-section">
+      <div class="container">
+        <div class="page-copy-shell">
+          <div class="page-copy-block content-prose">
+            {{ content | safe }}
+          </div>
+        </div>
+      </div>
+    </section>
+  {% else %}
+    <section class="page-hero page-hero-compact">
+      <div class="container">
+        <div class="page-head">
+          <p class="eyebrow">{% trans %}Page{% endtrans %}</p>
+          <h1>{{ title or Configs.ctf_name }}</h1>
+        </div>
+      </div>
+    </section>
+    <section class="page-section">
+      <div class="container">
+        <div class="page-panel page-panel-prose content-prose">
+          {{ content | safe }}
+        </div>
+      </div>
+    </section>
+  {% endif %}
 {% endblock %}
 
 {% block scripts %}

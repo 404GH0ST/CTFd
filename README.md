@@ -56,6 +56,44 @@ Or you can use Docker Compose with the following command from the source reposit
 
 Check out the [CTFd docs](https://docs.ctfd.io/) for [deployment options](https://docs.ctfd.io/docs/deployment/installation) and the [Getting Started](https://docs.ctfd.io/tutorials/getting-started/) guide
 
+## Local UI Development
+
+For fast theme and UI iteration, use Docker only for infrastructure and run the Flask app locally in debug mode.
+
+The repository includes a `docker-compose.override.yml` that exposes MariaDB and Redis on localhost:
+
+- MariaDB: `127.0.0.1:3306`
+- Redis: `127.0.0.1:6379`
+
+Recommended workflow:
+
+1. Start infrastructure only:
+
+   `docker compose up -d db cache`
+
+2. Point the local app at those services:
+
+   ```bash
+   export DATABASE_URL=mysql+pymysql://ctfd:ctfd@127.0.0.1:3306/ctfd
+   export REDIS_URL=redis://127.0.0.1:6379
+   export UPLOAD_FOLDER="$(pwd)/.data/CTFd/uploads"
+   export LOG_FOLDER="$(pwd)/.data/CTFd/logs"
+   ```
+
+3. Run CTFd locally with autoreload:
+
+   `python serve.py --port 4000`
+
+4. In a second terminal, watch and rebuild the core theme automatically:
+
+   ```bash
+   cd CTFd/themes/core
+   yarn install
+   yarn dev
+   ```
+
+This avoids rebuilding Docker images for normal UI work. Python and template edits reload through Flask debug mode, and `yarn dev` recompiles the core theme as you save files in `CTFd/themes/core/assets`.
+
 ## Live Demo
 
 https://demo.ctfd.io/

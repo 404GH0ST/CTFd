@@ -1,17 +1,19 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class="jumbotron">
+  <section class="page-hero page-hero-compact">
     <div class="container">
-      <h1>
-        {% trans %}Confirm{% endtrans %}
-      </h1>
+      <div class="page-head">
+        <p class="eyebrow">{% trans %}Email{% endtrans %}</p>
+        <h1>{% trans %}Confirm{% endtrans %}</h1>
+        <p class="lede">{% trans %}Verify your account email so you can receive event updates and complete registration flows.{% endtrans %}</p>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <div class="container">
-    <div class="row">
-      <div class="col-md-10 col-lg-8 col-xl-6 offset-md-1 offset-lg-2 offset-xl-3">
+  <section class="page-section">
+    <div class="container">
+      <div class="page-panel auth-copy form-panel">
         {% include "components/errors.html" %}
 
         {% if request.args.get('flow') == "init" %}
@@ -42,11 +44,11 @@
 
         {% with form = Forms.auth.ConfirmForm() %}
           <form method="POST" action="{{ url_for('auth.confirm') }}">
-            <div class="row">
-              <div class="mb-3 col-md-6">
+            <div class="directory-search-form">
+              <div>
                 {{ form.submit(class="btn btn-primary w-100 p-2") }}
               </div>
-              <div class="mb-3 col-md-6">
+              <div>
                 <a href="{{ url_for('views.settings') }}" class="btn btn-secondary w-100 p-2">
                   {% trans %}Change Email Address{% endtrans %}
                 </a>
@@ -57,5 +59,5 @@
         {% endwith %}
       </div>
     </div>
-  </div>
+  </section>
 {% endblock %}

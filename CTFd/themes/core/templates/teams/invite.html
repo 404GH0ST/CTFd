@@ -1,14 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class="jumbotron">
+  <section class="page-hero page-hero-compact">
     <div class="container">
-      <h1>{% trans %}Join Team{% endtrans %}</h1>
+      <div class="page-head">
+        <p class="eyebrow">{% trans %}Team invite{% endtrans %}</p>
+        <h1>{% trans %}Join Team{% endtrans %}</h1>
+        <p class="lede">{% trans %}Accept the invitation below to join the selected team, or create your own instead.{% endtrans %}</p>
+      </div>
     </div>
-  </div>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-8 col-lg-6 offset-md-2 offset-lg-3">
+  </section>
+  <section class="page-section">
+    <div class="container">
+      <div class="page-panel auth-copy form-panel">
         {% include "components/errors.html" %}
 
         <p class="h3 text-center mt-md-4">
@@ -19,7 +23,7 @@
           {% trans %}Click the button below to join the team!{% endtrans %}
           <br>
           <small class="text-muted">
-            Or <a href="{{ url_for('teams.new') }}">click here</a> if you'd prefer to create your own team.
+            {% trans create_url=url_for('teams.new') %}Or <a href="{{ create_url }}">click here</a> if you'd prefer to create your own team.{% endtrans %}
           </small>
         </p>
 
@@ -27,7 +31,7 @@
           <form method="POST">
             <div class="row pt-3 text-center">
               <div class="col-md-12">
-                {{ form.submit(class="btn btn-success w-100") }}
+                {{ form.submit(class="btn btn-primary w-100") }}
               </div>
             </div>
             {{ form.nonce() }}
@@ -35,5 +39,5 @@
         {% endwith %}
       </div>
     </div>
-  </div>
+  </section>
 {% endblock %}
