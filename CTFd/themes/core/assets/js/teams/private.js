@@ -3,14 +3,17 @@ import CTFd from "../index";
 import { Modal } from "bootstrap";
 import { serializeJSON } from "@ctfdio/ctfd-js/forms";
 import { copyToClipboard } from "../utils/clipboard";
-import { colorHash } from "@ctfdio/ctfd-js/ui";
 import { getOption as getUserScoreOption } from "../utils/graphs/echarts/userscore";
 import { embed } from "../utils/graphs/echarts";
+import { buildCategoryBreakdown, getPercentage } from "../utils/profile-graphs";
 
 window.Alpine = Alpine;
 window.CTFd = CTFd;
 
-Alpine.store("inviteToken", "");
+Alpine.store("teamInvite", {
+  token: "",
+  errors: [],
+});
 
 Alpine.data("TeamEditModal", () => ({
   success: null,
@@ -120,14 +123,19 @@ Alpine.data("CaptainMenu", () => ({
       const url = `${window.location.origin}${CTFd.config.urlRoot}/teams/invite?code=${code}`;
 
       document.querySelector("#team-invite-modal input[name=link]").value = url;
-      this.$store.inviteToken = url;
+      Alpine.store("teamInvite", {
+        token: url,
+        errors: [],
+      });
       this.teamInviteModal = new Modal(document.getElementById("team-invite-modal"));
       this.teamInviteModal.show();
     } else {
-      Object.keys(response.errors).map(error => {
-        const error_msg = response.errors[error];
-        alert(error_msg);
+      Alpine.store("teamInvite", {
+        token: "",
+        errors: Object.values(response.errors).flat(),
       });
+      this.teamInviteModal = new Modal(document.getElementById("team-invite-modal"));
+      this.teamInviteModal.show();
     }
   },
 
@@ -145,41 +153,28 @@ Alpine.data("TeamGraphs", () => ({
   failCount: 0,
   awardCount: 0,
 
+  getAttemptTotal() {
+    return this.solveCount + this.failCount;
+  },
+
   getSolvePercentage() {
-    return ((this.solveCount / (this.solveCount + this.failCount)) * 100).toFixed(2);
+    return getPercentage(this.solveCount, this.getAttemptTotal());
+  },
+
+  getSolvePercentageValue() {
+    return Number(this.getSolvePercentage());
   },
 
   getFailPercentage() {
-    return ((this.failCount / (this.solveCount + this.failCount)) * 100).toFixed(2);
+    return getPercentage(this.failCount, this.getAttemptTotal());
+  },
+
+  getFailPercentageValue() {
+    return Number(this.getFailPercentage());
   },
 
   getCategoryBreakdown() {
-    const categories = [];
-    const breakdown = {};
-
-    this.solves.data.map(solve => {
-      categories.push(solve.challenge.category);
-    });
-
-    categories.forEach(category => {
-      if (category in breakdown) {
-        breakdown[category] += 1;
-      } else {
-        breakdown[category] = 1;
-      }
-    });
-
-    const data = [];
-    for (const property in breakdown) {
-      data.push({
-        name: property,
-        count: breakdown[property],
-        percent: (breakdown[property] / categories.length) * 100,
-        color: colorHash(property),
-      });
-    }
-
-    return data;
+    return buildCategoryBreakdown(this.solves.data);
   },
 
   async init() {

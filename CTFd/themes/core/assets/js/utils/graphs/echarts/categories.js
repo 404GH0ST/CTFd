@@ -1,5 +1,5 @@
-import { colorHash } from "@ctfdio/ctfd-js/ui";
 import { mergeObjects } from "../../objects";
+import { getThemeSeriesColor } from "../theme-palette";
 
 export function getOption(solves, optionMerge) {
   let option = {
@@ -96,7 +96,7 @@ export function getOption(solves, optionMerge) {
     option.series[0].data.push({
       value: counts[index],
       name: category,
-      itemStyle: { color: colorHash(category) },
+      itemStyle: { color: getThemeSeriesColor(index) },
     });
   });
 

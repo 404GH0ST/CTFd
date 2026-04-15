@@ -2,7 +2,7 @@ import Alpine from "alpinejs";
 
 import CTFd from "./index";
 
-import { Modal, Tab, Tooltip } from "bootstrap";
+import { Tooltip } from "bootstrap";
 import highlight from "./theme/highlight";
 import { intl } from "./theme/times";
 
@@ -12,6 +12,7 @@ function addTargetBlank(html) {
   let links = view.querySelectorAll('a[href*="://"]');
   links.forEach(link => {
     link.setAttribute("target", "_blank");
+    link.setAttribute("rel", "noopener noreferrer");
   });
   return view.documentElement.outerHTML;
 }
@@ -66,7 +67,6 @@ Alpine.data("Challenge", () => ({
   id: null,
   next_id: null,
   submission: "",
-  tab: null,
   solves: [],
   submissions: [],
   solution: null,
@@ -78,63 +78,56 @@ Alpine.data("Challenge", () => ({
   selectedRating: 0,
   ratingReview: "",
   ratingSubmitted: false,
+  ratingError: "",
+  solvesLoaded: false,
+  submissionsLoaded: false,
+  solutionLoaded: false,
+  solvesLoading: false,
+  submissionsLoading: false,
+  solutionLoading: false,
+  labels: {},
 
   async init() {
-    highlight();
-  },
-
-  getStyles() {
-    let styles = {
-      "modal-dialog": true,
+    this.labels = {
+      ...this.labels,
+      ...this.$el.dataset,
     };
-    try {
-      let size = CTFd.config.themeSettings.challenge_window_size;
-      switch (size) {
-        case "sm":
-          styles["modal-sm"] = true;
-          break;
-        case "lg":
-          styles["modal-lg"] = true;
-          break;
-        case "xl":
-          styles["modal-xl"] = true;
-          break;
-        default:
-          break;
-      }
-    } catch (error) {
-      // Ignore errors with challenge window size
-      console.log("Error processing challenge_window_size");
-      console.log(error);
-    }
-    return styles;
-  },
-
-  async init() {
     highlight();
-  },
-
-  async showChallenge() {
-    new Tab(this.$el).show();
   },
 
   async showSolves() {
-    this.solves = await CTFd.pages.challenge.loadSolves(this.id);
-    this.solves.forEach(solve => {
-      solve.date = intl.format(new Date(solve.date));
-      return solve;
-    });
-    new Tab(this.$el).show();
+    if (this.solvesLoaded || this.solvesLoading) {
+      return;
+    }
+    this.solvesLoading = true;
+    try {
+      this.solves = await CTFd.pages.challenge.loadSolves(this.id);
+      this.solves.forEach(solve => {
+        solve.date = intl.format(new Date(solve.date));
+        return solve;
+      });
+      this.solvesLoaded = true;
+    } finally {
+      this.solvesLoading = false;
+    }
   },
 
   async showSubmissions() {
-    let response = await CTFd.pages.users.userSubmissions("me", this.id);
-    this.submissions = response.data;
-    this.submissions.forEach(s => {
-      s.date = intl.format(new Date(s.date));
-      return s;
-    });
-    new Tab(this.$el).show();
+    if (this.submissionsLoaded || this.submissionsLoading) {
+      return;
+    }
+    this.submissionsLoading = true;
+    try {
+      let response = await CTFd.pages.users.userSubmissions("me", this.id);
+      this.submissions = response.data;
+      this.submissions.forEach(s => {
+        s.date = intl.format(new Date(s.date));
+        return s;
+      });
+      this.submissionsLoaded = true;
+    } finally {
+      this.submissionsLoading = false;
+    }
   },
 
   getSolutionId() {
@@ -152,12 +145,26 @@ Alpine.data("Challenge", () => ({
   },
 
   async showSolution() {
+    if (this.solutionLoaded || this.solutionLoading) {
+      return;
+    }
+    this.solutionLoading = true;
     let solution_id = this.getSolutionId();
     CTFd._functions.challenge.displaySolution = solution => {
       this.solution = solution.html;
-      new Tab(this.$el).show();
+      this.solutionLoaded = true;
+      this.solutionLoading = false;
     };
-    await CTFd.pages.challenge.displaySolution(solution_id);
+    try {
+      await CTFd.pages.challenge.displaySolution(solution_id);
+      if (!this.solution) {
+        this.solutionLoaded = true;
+      }
+    } finally {
+      if (!this.solutionLoaded) {
+        this.solutionLoading = false;
+      }
+    }
   },
 
   getNextId() {
@@ -166,21 +173,9 @@ Alpine.data("Challenge", () => ({
   },
 
   async nextChallenge() {
-    let modal = Modal.getOrCreateInstance("[x-ref='challengeWindow']");
-
-    // TODO: Get rid of this private attribute access
-    // See https://github.com/twbs/bootstrap/issues/31266
-    modal._element.addEventListener(
-      "hidden.bs.modal",
-      event => {
-        // Dispatch load-challenge event to call loadChallenge in the ChallengeBoard
-        Alpine.nextTick(() => {
-          this.$dispatch("load-challenge", this.getNextId());
-        });
-      },
-      { once: true },
-    );
-    modal.hide();
+    Alpine.nextTick(() => {
+      this.$dispatch("load-challenge", this.getNextId());
+    });
   },
 
   async getShareUrl() {
@@ -256,6 +251,7 @@ Alpine.data("Challenge", () => ({
   },
 
   async submitRating() {
+    this.ratingError = "";
     const response = await CTFd.pages.challenge.submitRating(
       this.id,
       this.selectedRating,
@@ -264,8 +260,9 @@ Alpine.data("Challenge", () => ({
     if (response.value) {
       this.ratingValue = this.selectedRating;
       this.ratingSubmitted = true;
+      this.ratingError = "";
     } else {
-      alert("Error submitting rating");
+      this.ratingError = this.labels.ratingErrorLabel;
     }
   },
 }));
@@ -274,9 +271,11 @@ Alpine.data("ChallengeBoard", () => ({
   loaded: false,
   challenges: [],
   challenge: null,
+  activeCategory: null,
 
   async init() {
     this.challenges = await CTFd.pages.challenges.getChallenges();
+    this.initializeCategory();
     this.loaded = true;
 
     if (window.location.hash) {
@@ -286,6 +285,20 @@ Alpine.data("ChallengeBoard", () => ({
         let pieces = [chalHash.slice(0, idx), chalHash.slice(idx + 1)];
         let id = pieces[1];
         await this.loadChallenge(id);
+      }
+    } else if (this.challenges.length > 0) {
+      let initialChallenges = this.getVisibleChallenges();
+      if (initialChallenges.length > 0) {
+        await this.loadChallenge(initialChallenges[0].id);
+      }
+    }
+  },
+
+  initializeCategory() {
+    if (this.activeCategory !== null) {
+      const categories = this.getCategories();
+      if (!categories.includes(this.activeCategory)) {
+        this.activeCategory = null;
       }
     }
   },
@@ -338,32 +351,59 @@ Alpine.data("ChallengeBoard", () => ({
     return challenges;
   },
 
+  getVisibleChallenges() {
+    return this.getChallenges(this.activeCategory);
+  },
+
   async loadChallenges() {
     this.challenges = await CTFd.pages.challenges.getChallenges();
+    this.initializeCategory();
+  },
+
+  async setCategory(category) {
+    this.activeCategory = category;
+
+    const visibleChallenges = this.getVisibleChallenges();
+    const activeStillVisible =
+      this.challenge &&
+      visibleChallenges.some(challenge => challenge.id === this.challenge.id);
+
+    if (!activeStillVisible && visibleChallenges.length > 0) {
+      await this.loadChallenge(visibleChallenges[0].id);
+    }
   },
 
   async loadChallenge(challengeId) {
     await CTFd.pages.challenge.displayChallenge(challengeId, challenge => {
       challenge.data.view = addTargetBlank(challenge.data.view);
       Alpine.store("challenge").data = challenge.data;
+      this.challenge = challenge.data;
+      if (challenge.data.category && this.activeCategory !== null) {
+        this.activeCategory = challenge.data.category;
+      }
 
-      // nextTick is required here because we're working in a callback
       Alpine.nextTick(() => {
-        let modal = Modal.getOrCreateInstance("[x-ref='challengeWindow']");
-        // TODO: Get rid of this private attribute access
-        // See https://github.com/twbs/bootstrap/issues/31266
-        modal._element.addEventListener(
-          "hidden.bs.modal",
-          event => {
-            // Remove location hash
-            history.replaceState(null, null, " ");
-          },
-          { once: true },
-        );
-        modal.show();
         history.replaceState(null, null, `#${challenge.data.name}-${challengeId}`);
+        if (window.innerWidth < 992) {
+          this.$refs.challengeDetail.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
       });
     });
+  },
+
+  clearChallenge() {
+    this.challenge = null;
+    Alpine.store("challenge").data = {
+      view: "",
+    };
+    history.replaceState(
+      null,
+      null,
+      `${window.location.pathname}${window.location.search}`,
+    );
   },
 }));
 

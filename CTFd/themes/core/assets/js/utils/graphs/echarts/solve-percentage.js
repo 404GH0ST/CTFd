@@ -1,6 +1,15 @@
 import { mergeObjects } from "../../objects";
 
+function getThemeStatColors() {
+  const styles = getComputedStyle(document.documentElement);
+  return {
+    solve: styles.getPropertyValue("--ctfd-success").trim() || "rgb(0, 209, 64)",
+    fail: styles.getPropertyValue("--ctfd-danger").trim() || "rgb(207, 38, 0)",
+  };
+}
+
 export function getOption(solves, fails, optionMerge) {
+  const colors = getThemeStatColors();
   let option = {
     title: {
       left: "center",
@@ -68,12 +77,12 @@ export function getOption(solves, fails, optionMerge) {
           {
             value: fails,
             name: "Fails",
-            itemStyle: { color: "rgb(207, 38, 0)" },
+            itemStyle: { color: colors.fail },
           },
           {
             value: solves,
             name: "Solves",
-            itemStyle: { color: "rgb(0, 209, 64)" },
+            itemStyle: { color: colors.solve },
           },
         ],
       },

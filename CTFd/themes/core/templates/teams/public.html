@@ -162,29 +162,35 @@
           <h3>{% trans %}Attempt rate{% endtrans %}</h3>
           <div class="progress">
             <div
-              class="progress-bar"
+              class="progress-bar profile-progress-bar profile-progress-bar-solve"
               role="progressbar"
-              :style="{ width: `${getSolvePercentage()}%`, 'background-color': 'rgb(0, 209, 64)' }"
+              :style="{ width: `${getSolvePercentage()}%` }"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              :aria-valuenow="getSolvePercentageValue()"
+              :aria-valuetext="`${window.STATS_TEXT.solves}: ${getSolvePercentage()}%`"
+              :aria-label="`${window.STATS_TEXT.solves}: ${getSolvePercentage()}%`"
             >
             </div>
             <div
-              class="progress-bar"
+              class="progress-bar profile-progress-bar profile-progress-bar-fail"
               role="progressbar"
-              :style="{ width: `${getFailPercentage()}%`, 'background-color': 'rgb(207, 38, 0)' }"
+              :style="{ width: `${getFailPercentage()}%` }"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              :aria-valuenow="getFailPercentageValue()"
+              :aria-valuetext="`${window.STATS_TEXT.fails}: ${getFailPercentage()}%`"
+              :aria-label="`${window.STATS_TEXT.fails}: ${getFailPercentage()}%`"
             >
             </div>
           </div>
           <div class="profile-legend">
             <div class="profile-legend-item">
-              <svg height="16" width="16">
-                <circle cx="8" cy="8" r="5" fill="rgb(0, 209, 64)" />
-              </svg>
+              <span class="profile-legend-swatch profile-legend-swatch-solve" aria-hidden="true"></span>
               <small x-text="`${window.STATS_TEXT.solves} (${getSolvePercentage()}%)`"></small>
             </div>
             <div class="profile-legend-item">
-              <svg height="16" width="16">
-                <circle cx="8" cy="8" r="5" fill="rgb(207, 38, 0)" />
-              </svg>
+              <span class="profile-legend-swatch profile-legend-swatch-fail" aria-hidden="true"></span>
               <small x-text="`${window.STATS_TEXT.fails} (${getFailPercentage()}%)`"></small>
             </div>
           </div>
@@ -194,9 +200,15 @@
           <div class="progress">
             <template x-for="category in getCategoryBreakdown()" :key="category.name">
               <div
-                class="progress-bar"
+                class="progress-bar profile-progress-bar profile-progress-bar-category"
+                :class="category.toneClass"
                 role="progressbar"
-                :style="{ width: `${category.percent}%`, 'background-color': category.color }"
+                :style="{ width: `${category.percent}%` }"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                :aria-valuenow="Number(category.percent)"
+                :aria-valuetext="`${category.name}: ${category.percent}%`"
+                :aria-label="`${category.name}: ${category.percent}%`"
               >
               </div>
             </template>
@@ -204,9 +216,7 @@
           <div class="profile-legend">
             <template x-for="category in getCategoryBreakdown()" :key="category.name">
               <div class="profile-legend-item">
-                <svg height="16" width="16">
-                  <circle cx="8" cy="8" r="5" :fill="category.color" />
-                </svg>
+                <span class="profile-legend-swatch profile-legend-swatch-category" :class="category.toneClass" aria-hidden="true"></span>
                 <small x-text="`${category.name} (${category.percent}%)`"></small>
               </div>
             </template>

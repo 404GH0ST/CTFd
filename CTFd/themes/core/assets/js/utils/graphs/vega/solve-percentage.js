@@ -1,4 +1,13 @@
+function getThemeStatColors() {
+  const styles = getComputedStyle(document.documentElement);
+  return {
+    solve: styles.getPropertyValue("--ctfd-success").trim() || "#00d13f",
+    fail: styles.getPropertyValue("--ctfd-danger").trim() || "#cf2600",
+  };
+}
+
 export function getSpec(description, values) {
+  const colors = getThemeStatColors();
   return {
     $schema: "https://vega.github.io/schema/vega-lite/v5.json",
     description: description,
@@ -59,7 +68,7 @@ export function getSpec(description, values) {
         type: "nominal",
         scale: {
           domain: ["Solves", "Fails"],
-          range: ["#00d13f", "#cf2600"],
+          range: [colors.solve, colors.fail],
         },
         legend: {
           orient: "bottom",

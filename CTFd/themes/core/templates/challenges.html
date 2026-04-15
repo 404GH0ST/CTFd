@@ -5,16 +5,11 @@
     x-data="ChallengeBoard"
     @load-challenges.window="loadChallenges()"
     @load-challenge.window="loadChallenge($event.detail)"
+    @clear-challenge.window="clearChallenge()"
   >
-    <div
-        x-ref="challengeWindow" id="challenge-window" class="modal fade" tabindex="-1" role="dialog" x-data=""
-        x-html="$store.challenge.data.view"
-    ></div>
-
     <section class="page-hero page-hero-compact">
       <div class="container">
         <div class="page-head">
-          <p class="eyebrow">{% trans %}Challenge board{% endtrans %}</p>
           <h1>{% trans %}Challenges{% endtrans %}</h1>
         </div>
       </div>
@@ -40,40 +35,77 @@
               <p class="text-muted mb-0">{% trans %}Challenges will appear here once categories and tasks are published.{% endtrans %}</p>
             </div>
 
-            <template x-for="(category, idx) in getCategories()" :key="idx">
-              <section class="challenge-category">
-                <div class="category-header">
-                  <div class="category-copy">
-                    <p class="eyebrow">{% trans %}Category{% endtrans %}</p>
-                    <h3 x-text="category"></h3>
-                  </div>
-                  <div class="category-meta">
-                    <span
-                      class="category-count"
-                      data-singular="{{ _('challenge') }}"
-                      data-plural="{{ _('challenges') }}"
-                      x-text="`${getChallenges(category).length} ${getChallenges(category).length === 1 ? $el.dataset.singular : $el.dataset.plural}`"
-                    ></span>
-                  </div>
+            <div class="challenge-workspace" x-show="getCategories().length">
+              <aside class="challenge-category-rail" aria-label="{% trans %}Challenge categories{% endtrans %}">
+                <div class="challenge-column-head">
+                  <p class="eyebrow">{% trans %}Categories{% endtrans %}</p>
                 </div>
 
-                <div class="challenge-grid">
-                  <template x-for="(c, idx) in getChallenges(category)" :key="c.id">
+                <div class="challenge-category-list" aria-label="{% trans %}Challenge category filter{% endtrans %}">
+                  <button
+                    type="button"
+                    class="challenge-category-filter"
+                    :class="{ 'is-active': activeCategory === null }"
+                    @click="setCategory(null)"
+                    :aria-pressed="activeCategory === null"
+                  >
+                    <span class="challenge-category-filter-name">{% trans %}All{% endtrans %}</span>
+                    <span class="challenge-category-filter-count" x-text="challenges.length"></span>
+                  </button>
+                  <template x-for="(category, idx) in getCategories()" :key="idx">
                     <button
-                        type="button"
-                        class="challenge-button btn w-100 h-100"
-                        :class="[
-                          idx === 0 ? 'challenge-card-featured' : '',
-                          c.solved_by_me ? 'challenge-solved' : '',
-                          ...c.tags.map((tag) => `tag-${tag.value.replace(/ /g, '-')}`),
-                        ];"
-                        :value="c.id" @click="loadChallenge(c.id)"
+                      type="button"
+                      class="challenge-category-filter"
+                      :class="{ 'is-active': activeCategory === category }"
+                      @click="setCategory(category)"
+                      :aria-pressed="activeCategory === category"
                     >
-                      <div class="challenge-inner">
-                        <span class="challenge-card-label" x-text="c.category || category"></span>
-                        <p x-text="c.name"></p>
-                        <div class="challenge-card-meta">
-                          <span class="challenge-card-value" x-text="`${c.value} pts`"></span>
+                      <span class="challenge-category-filter-name" x-text="category"></span>
+                      <span
+                        class="challenge-category-filter-count"
+                        data-singular="{{ _('challenge') }}"
+                        data-plural="{{ _('challenges') }}"
+                        x-text="`${getChallenges(category).length}`"
+                        :aria-label="`${getChallenges(category).length} ${getChallenges(category).length === 1 ? $el.dataset.singular : $el.dataset.plural}`"
+                      ></span>
+                    </button>
+                  </template>
+                </div>
+              </aside>
+
+              <section class="challenge-list-panel">
+                <div class="challenge-column-head challenge-list-head">
+                  <div>
+                    <p class="eyebrow">{% trans %}Selected category{% endtrans %}</p>
+                    <h2 x-text="activeCategory || '{{ _('All challenges') }}'"></h2>
+                  </div>
+                  <span
+                    class="category-count"
+                    data-singular="{{ _('challenge') }}"
+                    data-plural="{{ _('challenges') }}"
+                    x-text="`${getVisibleChallenges().length} ${getVisibleChallenges().length === 1 ? $el.dataset.singular : $el.dataset.plural}`"
+                  ></span>
+                </div>
+
+                <div class="challenge-stream">
+                  <template x-for="c in getVisibleChallenges()" :key="c.id">
+                    <button
+                      type="button"
+                      class="challenge-stream-item"
+                      :class="{
+                        'is-active': challenge && challenge.id === c.id,
+                        'challenge-solved': c.solved_by_me
+                      }"
+                      @click="loadChallenge(c.id)"
+                      :aria-pressed="challenge && challenge.id === c.id"
+                    >
+                      <div class="challenge-stream-copy">
+                        <div class="challenge-stream-title-row">
+                          <p x-text="c.name"></p>
+                          <span class="challenge-stream-points" x-text="`${c.value} pts`"></span>
+                        </div>
+                        <div class="challenge-stream-meta">
+                          <span class="challenge-card-label" x-text="c.category || activeCategory"></span>
                           <span class="challenge-card-status" x-show="c.solved_by_me">{% trans %}Solved{% endtrans %}</span>
                           <span class="challenge-card-status challenge-card-status-open" x-show="!c.solved_by_me">{% trans %}Open{% endtrans %}</span>
                         </div>
@@ -82,7 +114,21 @@
                   </template>
                 </div>
               </section>
-            </template>
+
+              <aside class="challenge-detail-shell" x-ref="challengeDetail">
+                <template x-if="challenge">
+                  <div class="challenge-detail-frame" x-html="$store.challenge.data.view"></div>
+                </template>
+
+                <template x-if="!challenge">
+                  <div class="challenge-detail-placeholder">
+                    <p class="eyebrow">{% trans %}Details{% endtrans %}</p>
+                    <h2>{% trans %}Choose a task{% endtrans %}</h2>
+                    <p class="text-muted mb-0">{% trans %}Pick a challenge from the list to read the prompt, open files, and submit a flag here.{% endtrans %}</p>
+                  </div>
+                </template>
+              </aside>
+            </div>
           </div>
         </div>
       </div>

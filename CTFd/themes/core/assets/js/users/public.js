@@ -1,9 +1,9 @@
 import CTFd from "../index";
 
 import Alpine from "alpinejs";
-import { colorHash } from "@ctfdio/ctfd-js/ui";
 import { getOption as getUserScoreOption } from "../utils/graphs/echarts/userscore";
 import { embed } from "../utils/graphs/echarts";
+import { buildCategoryBreakdown, getPercentage } from "../utils/profile-graphs";
 
 window.Alpine = Alpine;
 
@@ -15,44 +15,28 @@ Alpine.data("UserGraphs", () => ({
   failCount: 0,
   awardCount: 0,
 
+  getAttemptTotal() {
+    return this.solveCount + this.failCount;
+  },
+
   getSolvePercentage() {
-    return ((this.solveCount / (this.solveCount + this.failCount)) * 100).toFixed(2);
+    return getPercentage(this.solveCount, this.getAttemptTotal());
+  },
+
+  getSolvePercentageValue() {
+    return Number(this.getSolvePercentage());
   },
 
   getFailPercentage() {
-    return ((this.failCount / (this.solveCount + this.failCount)) * 100).toFixed(2);
+    return getPercentage(this.failCount, this.getAttemptTotal());
+  },
+
+  getFailPercentageValue() {
+    return Number(this.getFailPercentage());
   },
 
   getCategoryBreakdown() {
-    const categories = [];
-    const breakdown = {};
-
-    this.solves.data.map(solve => {
-      categories.push(solve.challenge.category);
-    });
-
-    categories.forEach(category => {
-      if (category in breakdown) {
-        breakdown[category] += 1;
-      } else {
-        breakdown[category] = 1;
-      }
-    });
-
-    const data = [];
-    for (const property in breakdown) {
-      const percent = Number((breakdown[property] / categories.length) * 100).toFixed(
-        2,
-      );
-      data.push({
-        name: property,
-        count: breakdown[property],
-        color: colorHash(property),
-        percent,
-      });
-    }
-
-    return data;
+    return buildCategoryBreakdown(this.solves.data);
   },
 
   async init() {

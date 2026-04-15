@@ -1,6 +1,6 @@
-import { colorHash } from "@ctfdio/ctfd-js/ui";
 import { mergeObjects } from "../../objects";
 import { cumulativeSum } from "../../math";
+import { getThemeSeriesColor } from "../theme-palette";
 import dayjs from "dayjs";
 
 export function getOption(mode, places, optionMerge) {
@@ -67,7 +67,7 @@ export function getOption(mode, places, optionMerge) {
       },
       itemStyle: {
         normal: {
-          color: colorHash(places[teams[i]]["name"] + places[teams[i]]["id"]),
+          color: getThemeSeriesColor(i),
         },
       },
       data: scores,
