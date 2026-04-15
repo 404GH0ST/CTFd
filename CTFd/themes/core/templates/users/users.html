@@ -106,23 +106,49 @@
         </div>
 
     {% if users.pages > 1 %}
-      <div class="page-panel directory-pagination">
-        <span>{% trans %}Page{% endtrans %}</span>
+      {% set page_start = [1, users.page - 2] | max %}
+      {% set page_end = [users.pages, users.page + 2] | min %}
+      <nav class="page-panel directory-pagination" aria-label="{% trans %}Users pagination{% endtrans %}">
+        <p class="directory-pagination-summary">
+          {% trans page=users.page, total=users.pages %}Page {{ page }} of {{ total }}{% endtrans %}
+        </p>
 
-        {% if users.page != 1 %}
-          <a href="{{ prev_page }}">&lt;&lt;&lt;</a>
-        {% endif %}
+        <div class="directory-pagination-nav">
+          {% if users.page != 1 %}
+            <a class="pagination-link pagination-link-direction" href="{{ prev_page }}" aria-label="{% trans %}Go to previous page{% endtrans %}">
+              {% trans %}Previous{% endtrans %}
+            </a>
+          {% endif %}
 
-        <select class="page-select">
-          {% for page in range(1, users.pages + 1) %}
-            <option {% if users.page == page %}selected{% endif %}>{{ page }}</option>
+          {% if page_start > 1 %}
+            <a class="pagination-link" href="{{ url_for('users.listing', page=1, q=q, field=field) }}">1</a>
+            {% if page_start > 2 %}
+              <span class="pagination-ellipsis" aria-hidden="true">…</span>
+            {% endif %}
+          {% endif %}
+
+          {% for page in range(page_start, page_end + 1) %}
+            {% if page == users.page %}
+              <span class="pagination-link pagination-link-current" aria-current="page">{{ page }}</span>
+            {% else %}
+              <a class="pagination-link" href="{{ url_for('users.listing', page=page, q=q, field=field) }}">{{ page }}</a>
+            {% endif %}
           {% endfor %}
-        </select>
 
-        {% if users.next_num %}
-          <a href="{{ next_page }}">&gt;&gt;&gt;</a>
-        {% endif %}
-      </div>
+          {% if page_end < users.pages %}
+            {% if page_end < users.pages - 1 %}
+              <span class="pagination-ellipsis" aria-hidden="true">…</span>
+            {% endif %}
+            <a class="pagination-link" href="{{ url_for('users.listing', page=users.pages, q=q, field=field) }}">{{ users.pages }}</a>
+          {% endif %}
+
+          {% if users.next_num %}
+            <a class="pagination-link pagination-link-direction" href="{{ next_page }}" aria-label="{% trans %}Go to next page{% endtrans %}">
+              {% trans %}Next{% endtrans %}
+            </a>
+          {% endif %}
+        </div>
+      </nav>
     {% endif %}
       </div>
     </div>
