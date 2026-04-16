@@ -65,10 +65,6 @@ Alpine.data("ScoreboardDetail", () => ({
     const { getOption, embed } = await loadScoreboardChartRuntime();
     let optionMerge = window.scoreboardChartOptions;
     let option = getOption(CTFd.config.userMode, this.data, optionMerge);
-    option.title.text =
-      CTFd.config.userMode === "teams"
-        ? window.SCOREBOARD_TEXT?.topTeams || "Top 10 Teams"
-        : window.SCOREBOARD_TEXT?.topUsers || "Top 10 Users";
 
     embed(this.$refs.scoregraph, option);
   },

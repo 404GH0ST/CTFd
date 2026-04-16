@@ -21,7 +21,7 @@
           {% include "components/errors.html" %}
 
           <div x-show="!loaded">
-            <div class="min-vh-50 d-flex align-items-center">
+            <div class="challenge-board-loading">
               <div class="text-center w-100">
                 <i class="fas fa-circle-notch fa-spin fa-3x fa-fw spinner"></i>
               </div>
@@ -79,15 +79,31 @@
                     <p class="eyebrow">{% trans %}Selected category{% endtrans %}</p>
                     <h2 x-text="activeCategory || '{{ _('All challenges') }}'"></h2>
                   </div>
-                  <span
-                    class="category-count"
-                    data-singular="{{ _('challenge') }}"
-                    data-plural="{{ _('challenges') }}"
-                    x-text="`${getVisibleChallenges().length} ${getVisibleChallenges().length === 1 ? $el.dataset.singular : $el.dataset.plural}`"
-                  ></span>
+                  <div class="challenge-list-tools">
+                    <button
+                      type="button"
+                      class="challenge-quick-toggle"
+                      :class="{ 'is-active': unsolvedOnly }"
+                      @click="toggleUnsolvedOnly()"
+                      :aria-pressed="unsolvedOnly"
+                    >
+                      {% trans %}Unsolved only{% endtrans %}
+                    </button>
+                    <span
+                      class="category-count"
+                      data-singular="{{ _('challenge') }}"
+                      data-plural="{{ _('challenges') }}"
+                      x-text="`${getVisibleChallenges().length} ${getVisibleChallenges().length === 1 ? $el.dataset.singular : $el.dataset.plural}`"
+                    ></span>
+                  </div>
                 </div>
 
-                <div class="challenge-stream">
+                <div class="empty-state empty-state-compact" x-show="!getVisibleChallenges().length">
+                  <h3>{% trans %}No matching challenges{% endtrans %}</h3>
+                  <p class="text-muted mb-0">{% trans %}Try another category or turn off the unsolved-only filter.{% endtrans %}</p>
+                </div>
+
+                <div class="challenge-stream" x-show="getVisibleChallenges().length">
                   <template x-for="c in getVisibleChallenges()" :key="c.id">
                     <button
                       type="button"
@@ -116,6 +132,30 @@
               </section>
 
               <aside class="challenge-detail-shell" x-ref="challengeDetail">
+                <div class="challenge-detail-toolbar" x-show="challenge">
+                  <button
+                    type="button"
+                    class="challenge-detail-nav"
+                    @click="goToPreviousChallenge()"
+                    :disabled="!canGoPrevious()"
+                  >
+                    {% trans %}Previous{% endtrans %}
+                  </button>
+                  <span class="challenge-detail-position" x-show="challenge">
+                    <span x-text="getCurrentChallengeIndex() + 1"></span>
+                    /
+                    <span x-text="getVisibleChallenges().length"></span>
+                  </span>
+                  <button
+                    type="button"
+                    class="challenge-detail-nav"
+                    @click="goToNextChallenge()"
+                    :disabled="!canGoNext()"
+                  >
+                    {% trans %}Next{% endtrans %}
+                  </button>
+                </div>
+
                 <template x-if="challenge">
                   <div class="challenge-detail-frame" x-html="$store.challenge.data.view"></div>
                 </template>

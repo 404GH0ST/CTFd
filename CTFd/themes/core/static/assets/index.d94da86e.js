@@ -1,1 +1,0 @@
-import{u as t,i as e,a as l,b as n,c as r,d as o,e as d,f as $}from"./echarts.1fdece79.js";t([e,l,n,r,o,d]);function u(a,i){let s=$(a);s.setOption(i,!0),window.addEventListener("resize",()=>{s&&s.resize()})}export{u as embed};

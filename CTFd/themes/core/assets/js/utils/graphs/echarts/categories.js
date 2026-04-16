@@ -1,19 +1,18 @@
 import { mergeObjects } from "../../objects";
+import { getThemeChartColors } from "../theme-palette";
 import { getThemeSeriesColor } from "../theme-palette";
 
 export function getOption(solves, optionMerge) {
+  const colors = getThemeChartColors();
   let option = {
-    title: {
-      left: "center",
-      text: "Category Breakdown",
-    },
     tooltip: {
       trigger: "item",
-    },
-    toolbox: {
-      show: true,
-      feature: {
-        saveAsImage: {},
+      backgroundColor: colors.surfaceBright,
+      borderColor: colors.outline,
+      borderWidth: 1,
+      textStyle: {
+        color: colors.text,
+        fontFamily: colors.fontBody,
       },
     },
     legend: {
@@ -22,6 +21,16 @@ export function getOption(solves, optionMerge) {
       top: "middle",
       right: 0,
       data: [],
+      textStyle: {
+        color: colors.textMuted,
+        fontFamily: colors.fontBody,
+      },
+      pageIconColor: colors.primary,
+      pageIconInactiveColor: colors.outline,
+      pageTextStyle: {
+        color: colors.textMuted,
+        fontFamily: colors.fontBody,
+      },
     },
     series: [
       {
@@ -61,6 +70,8 @@ export function getOption(solves, optionMerge) {
             show: true,
             fontSize: "30",
             fontWeight: "bold",
+            color: colors.text,
+            fontFamily: colors.fontBody,
           },
         },
         labelLine: {

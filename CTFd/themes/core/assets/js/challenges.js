@@ -19,6 +19,20 @@ function addTargetBlank(html) {
 
 window.Alpine = Alpine;
 
+const CHALLENGE_BOARD_STORAGE_KEY = "ctfd-core-challenge-board";
+
+function loadStoredChallengeBoardState() {
+  try {
+    return JSON.parse(localStorage.getItem(CHALLENGE_BOARD_STORAGE_KEY)) || {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function saveStoredChallengeBoardState(state) {
+  localStorage.setItem(CHALLENGE_BOARD_STORAGE_KEY, JSON.stringify(state));
+}
+
 Alpine.store("challenge", {
   data: {
     view: "",
@@ -272,11 +286,23 @@ Alpine.data("ChallengeBoard", () => ({
   challenges: [],
   challenge: null,
   activeCategory: null,
+  unsolvedOnly: false,
+  hotkeysEnabled: true,
+  currentChallengeId: null,
 
   async init() {
+    const storedState = loadStoredChallengeBoardState();
+    this.activeCategory =
+      Object.prototype.hasOwnProperty.call(storedState, "activeCategory")
+        ? storedState.activeCategory
+        : null;
+    this.unsolvedOnly = Boolean(storedState.unsolvedOnly);
+    this.currentChallengeId = storedState.currentChallengeId || null;
+
     this.challenges = await CTFd.pages.challenges.getChallenges();
     this.initializeCategory();
     this.loaded = true;
+    window.addEventListener("keydown", this.handleKeydown.bind(this));
 
     if (window.location.hash) {
       let chalHash = decodeURIComponent(window.location.hash.substring(1));
@@ -285,6 +311,20 @@ Alpine.data("ChallengeBoard", () => ({
         let pieces = [chalHash.slice(0, idx), chalHash.slice(idx + 1)];
         let id = pieces[1];
         await this.loadChallenge(id);
+      }
+    } else if (
+      this.currentChallengeId &&
+      this.challenges.some(challenge => challenge.id == this.currentChallengeId)
+    ) {
+      const visibleChallenges = this.getVisibleChallenges();
+      const storedVisible = visibleChallenges.some(
+        challenge => challenge.id == this.currentChallengeId,
+      );
+
+      if (storedVisible) {
+        await this.loadChallenge(this.currentChallengeId);
+      } else if (visibleChallenges.length > 0) {
+        await this.loadChallenge(visibleChallenges[0].id);
       }
     } else if (this.challenges.length > 0) {
       let initialChallenges = this.getVisibleChallenges();
@@ -295,11 +335,17 @@ Alpine.data("ChallengeBoard", () => ({
   },
 
   initializeCategory() {
-    if (this.activeCategory !== null) {
-      const categories = this.getCategories();
-      if (!categories.includes(this.activeCategory)) {
-        this.activeCategory = null;
-      }
+    const categories = this.getCategories();
+
+    if (this.activeCategory !== null && !categories.includes(this.activeCategory)) {
+      this.activeCategory = null;
+    }
+
+    if (
+      this.activeCategory !== null &&
+      this.getChallenges(this.activeCategory).length === 0
+    ) {
+      this.activeCategory = null;
     }
   },
 
@@ -352,16 +398,95 @@ Alpine.data("ChallengeBoard", () => ({
   },
 
   getVisibleChallenges() {
-    return this.getChallenges(this.activeCategory);
+    let challenges = this.getChallenges(this.activeCategory);
+
+    if (this.unsolvedOnly) {
+      challenges = challenges.filter(challenge => !challenge.solved_by_me);
+    }
+
+    return challenges;
+  },
+
+  getCurrentChallengeIndex() {
+    if (!this.challenge) {
+      return -1;
+    }
+
+    return this.getVisibleChallenges().findIndex(
+      challenge => challenge.id === this.challenge.id,
+    );
+  },
+
+  canGoPrevious() {
+    return this.getCurrentChallengeIndex() > 0;
+  },
+
+  canGoNext() {
+    const currentIndex = this.getCurrentChallengeIndex();
+    return currentIndex >= 0 && currentIndex < this.getVisibleChallenges().length - 1;
+  },
+
+  persistState() {
+    saveStoredChallengeBoardState({
+      activeCategory: this.activeCategory,
+      unsolvedOnly: this.unsolvedOnly,
+      currentChallengeId: this.currentChallengeId,
+    });
+  },
+
+  shouldIgnoreHotkeys(target) {
+    if (!target) {
+      return false;
+    }
+
+    const tagName = target.tagName?.toLowerCase();
+    return (
+      target.isContentEditable ||
+      ["input", "textarea", "select", "button"].includes(tagName)
+    );
+  },
+
+  async handleKeydown(event) {
+    if (
+      !this.loaded ||
+      this.shouldIgnoreHotkeys(event.target) ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.altKey
+    ) {
+      return;
+    }
+
+    if (event.key === "[") {
+      event.preventDefault();
+      await this.goToPreviousChallenge();
+    }
+
+    if (event.key === "]") {
+      event.preventDefault();
+      await this.goToNextChallenge();
+    }
   },
 
   async loadChallenges() {
     this.challenges = await CTFd.pages.challenges.getChallenges();
     this.initializeCategory();
+
+    if (
+      this.challenge &&
+      !this.getVisibleChallenges().some(challenge => challenge.id === this.challenge.id)
+    ) {
+      if (this.getVisibleChallenges().length > 0) {
+        await this.loadChallenge(this.getVisibleChallenges()[0].id);
+      } else {
+        this.clearChallenge();
+      }
+    }
   },
 
   async setCategory(category) {
     this.activeCategory = category;
+    this.persistState();
 
     const visibleChallenges = this.getVisibleChallenges();
     const activeStillVisible =
@@ -370,7 +495,45 @@ Alpine.data("ChallengeBoard", () => ({
 
     if (!activeStillVisible && visibleChallenges.length > 0) {
       await this.loadChallenge(visibleChallenges[0].id);
+    } else if (!activeStillVisible && visibleChallenges.length === 0) {
+      this.clearChallenge();
     }
+  },
+
+  async toggleUnsolvedOnly() {
+    this.unsolvedOnly = !this.unsolvedOnly;
+    this.persistState();
+
+    const visibleChallenges = this.getVisibleChallenges();
+    const activeStillVisible =
+      this.challenge &&
+      visibleChallenges.some(challenge => challenge.id === this.challenge.id);
+
+    if (!activeStillVisible && visibleChallenges.length > 0) {
+      await this.loadChallenge(visibleChallenges[0].id);
+    } else if (!activeStillVisible && visibleChallenges.length === 0) {
+      this.clearChallenge();
+    }
+  },
+
+  async goToPreviousChallenge() {
+    const currentIndex = this.getCurrentChallengeIndex();
+    if (currentIndex <= 0) {
+      return;
+    }
+
+    await this.loadChallenge(this.getVisibleChallenges()[currentIndex - 1].id);
+  },
+
+  async goToNextChallenge() {
+    const currentIndex = this.getCurrentChallengeIndex();
+    const visibleChallenges = this.getVisibleChallenges();
+
+    if (currentIndex < 0 || currentIndex >= visibleChallenges.length - 1) {
+      return;
+    }
+
+    await this.loadChallenge(visibleChallenges[currentIndex + 1].id);
   },
 
   async loadChallenge(challengeId) {
@@ -378,9 +541,11 @@ Alpine.data("ChallengeBoard", () => ({
       challenge.data.view = addTargetBlank(challenge.data.view);
       Alpine.store("challenge").data = challenge.data;
       this.challenge = challenge.data;
+      this.currentChallengeId = challenge.data.id;
       if (challenge.data.category && this.activeCategory !== null) {
         this.activeCategory = challenge.data.category;
       }
+      this.persistState();
 
       Alpine.nextTick(() => {
         history.replaceState(null, null, `#${challenge.data.name}-${challengeId}`);
@@ -396,9 +561,11 @@ Alpine.data("ChallengeBoard", () => ({
 
   clearChallenge() {
     this.challenge = null;
+    this.currentChallengeId = null;
     Alpine.store("challenge").data = {
       view: "",
     };
+    this.persistState();
     history.replaceState(
       null,
       null,

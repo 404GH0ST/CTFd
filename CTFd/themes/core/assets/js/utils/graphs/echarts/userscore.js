@@ -1,5 +1,6 @@
 import { cumulativeSum } from "../../math";
 import { mergeObjects } from "../../objects";
+import { getCartesianChartTheme } from "./chart-theme";
 import { getThemeSeriesColor } from "../theme-palette";
 import dayjs from "dayjs";
 
@@ -7,26 +8,6 @@ export function getOption(id, name, solves, awards, optionMerge) {
   const seriesColor = getThemeSeriesColor(0);
 
   let option = {
-    title: {
-      left: "center",
-      text: "Score over Time",
-    },
-    tooltip: {
-      trigger: "axis",
-      axisPointer: {
-        type: "cross",
-      },
-    },
-    legend: {
-      type: "scroll",
-      orient: "horizontal",
-      align: "left",
-      bottom: 0,
-      data: [name],
-    },
-    grid: {
-      containLabel: true,
-    },
     xAxis: [
       {
         type: "category",
@@ -41,6 +22,14 @@ export function getOption(id, name, solves, awards, optionMerge) {
     ],
     series: [],
   };
+
+  option = mergeObjects(getCartesianChartTheme(), option);
+  option.tooltip = mergeObjects(option.tooltip, {
+    trigger: "axis",
+    axisPointer: {
+      type: "cross",
+    },
+  });
 
   const times = [];
   const scores = [];
@@ -67,21 +56,21 @@ export function getOption(id, name, solves, awards, optionMerge) {
   option.series.push({
     name: name,
     type: "line",
-    label: {
-      normal: {
-        show: true,
-        position: "top",
-      },
+    showSymbol: false,
+    symbol: "circle",
+    symbolSize: 6,
+    lineStyle: {
+      width: 2.5,
+      color: seriesColor,
     },
     areaStyle: {
-      normal: {
-        color: seriesColor,
-      },
+      color: `${seriesColor}2b`,
     },
     itemStyle: {
-      normal: {
-        color: seriesColor,
-      },
+      color: seriesColor,
+    },
+    emphasis: {
+      focus: "series",
     },
     data: cumulativeSum(scores),
   });

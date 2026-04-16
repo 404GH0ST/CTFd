@@ -3,9 +3,6 @@
 @use "includes/components/table";
 
 @use "includes/utils/fonts";
-@use "includes/utils/opacity";
-@use "includes/utils/min-height";
-@use "includes/utils/cursors";
 @use "includes/utils/lolight";
 
 @use "includes/icons/award-icons";
@@ -17,36 +14,41 @@
   --ctfd-radius: 0.28rem;
   --ctfd-radius-lg: 0.5rem;
   --ctfd-radius-xl: 0.68rem;
-  --ctfd-shadow: 0 16px 32px rgb(253 234 228 / 0.06);
-  --ctfd-glow: 0 0 48px rgb(255 144 98 / 0.18);
+  --ctfd-shadow: 0 16px 32px rgb(255 174 128 / 0.08);
+  --ctfd-glow: 0 0 48px rgb(255 158 108 / 0.22);
   --ctfd-grid-max: 1240px;
   --ctfd-ease: cubic-bezier(0.19, 1, 0.22, 1);
-  --ctfd-focus-ring: 0 0 0 0.18rem rgb(255 144 98 / 0.2);
+  --ctfd-focus-ring: 0 0 0 0.18rem rgb(255 158 108 / 0.24);
 }
 
 [data-bs-theme="dark"] {
   color-scheme: dark;
-  --ctfd-surface: #150c09;
-  --ctfd-surface-low: #1b110e;
-  --ctfd-surface-high: #291d19;
-  --ctfd-surface-highest: #30231e;
-  --ctfd-surface-bright: #392824;
-  --ctfd-surface-veil: rgb(48 35 30 / 0.68);
-  --ctfd-text: #fdeae4;
-  --ctfd-text-soft: rgb(253 234 228 / 0.72);
-  --ctfd-text-muted: rgb(253 234 228 / 0.54);
-  --ctfd-primary: #ff9062;
-  --ctfd-primary-strong: #ff793e;
-  --ctfd-accent: #f4c46d;
-  --ctfd-success: #b8d67d;
-  --ctfd-danger: #ff8b7a;
-  --ctfd-chart-tone-1: #ff9062;
-  --ctfd-chart-tone-2: #f4c46d;
-  --ctfd-chart-tone-3: #b8d67d;
-  --ctfd-chart-tone-4: #f2a78f;
-  --ctfd-chart-tone-5: #d6a85a;
-  --ctfd-chart-tone-6: #89a95f;
-  --ctfd-outline: rgb(253 234 228 / 0.12);
+  --ctfd-surface: #1a100d;
+  --ctfd-surface-low: #221612;
+  --ctfd-surface-high: #31211c;
+  --ctfd-surface-highest: #392925;
+  --ctfd-surface-bright: #46322c;
+  --ctfd-surface-veil: rgb(58 42 36 / 0.72);
+  --ctfd-text: #f9ece4;
+  --ctfd-text-soft: rgb(249 236 228 / 0.74);
+  --ctfd-text-muted: rgb(249 236 228 / 0.56);
+  --ctfd-primary: #ff9e6c;
+  --ctfd-primary-strong: #ff8249;
+  --ctfd-accent: #e6b55f;
+  --ctfd-success: #c2ca80;
+  --ctfd-danger: #ec8d73;
+  --ctfd-chart-tone-1: #ff9e6c;
+  --ctfd-chart-tone-2: #e6b55f;
+  --ctfd-chart-tone-3: #c2ca80;
+  --ctfd-chart-tone-4: #efaa8a;
+  --ctfd-chart-tone-5: #c99547;
+  --ctfd-chart-tone-6: #98a85f;
+  --ctfd-chart-surface: #3a2822;
+  --ctfd-chart-text: #f9ece4;
+  --ctfd-chart-text-muted: rgb(249 236 228 / 0.72);
+  --ctfd-chart-outline: rgb(249 236 228 / 0.16);
+  --ctfd-chart-grid: rgb(249 236 228 / 0.1);
+  --ctfd-outline: rgb(249 236 228 / 0.12);
   --bs-body-bg: var(--ctfd-surface);
   --bs-body-color: var(--ctfd-text);
   --bs-emphasis-color: var(--ctfd-text);
@@ -56,7 +58,7 @@
   --bs-border-color: transparent;
   --bs-primary: var(--ctfd-primary);
   --bs-secondary: var(--ctfd-accent);
-  --bs-info: #c88163;
+  --bs-info: #d08b68;
   --bs-success: var(--ctfd-success);
   --bs-danger: var(--ctfd-danger);
   --bs-link-color: var(--ctfd-text);
@@ -65,27 +67,32 @@
 
 [data-bs-theme="light"] {
   color-scheme: light;
-  --ctfd-surface: #f4ebe6;
-  --ctfd-surface-low: #ebe0d8;
-  --ctfd-surface-high: #e1d1c5;
-  --ctfd-surface-highest: #d8c5b8;
-  --ctfd-surface-bright: #fff6f0;
-  --ctfd-surface-veil: rgb(255 246 240 / 0.72);
-  --ctfd-text: #261512;
-  --ctfd-text-soft: rgb(38 21 18 / 0.76);
-  --ctfd-text-muted: rgb(38 21 18 / 0.58);
-  --ctfd-primary: #d96c34;
-  --ctfd-primary-strong: #bf5422;
-  --ctfd-accent: #b88924;
-  --ctfd-success: #6f8c37;
-  --ctfd-danger: #b14f45;
-  --ctfd-chart-tone-1: #d96c34;
-  --ctfd-chart-tone-2: #b88924;
-  --ctfd-chart-tone-3: #6f8c37;
-  --ctfd-chart-tone-4: #bf7d5a;
-  --ctfd-chart-tone-5: #9c7523;
-  --ctfd-chart-tone-6: #597528;
-  --ctfd-outline: rgb(38 21 18 / 0.08);
+  --ctfd-surface: #f7ede5;
+  --ctfd-surface-low: #f0e2d6;
+  --ctfd-surface-high: #e7d4c6;
+  --ctfd-surface-highest: #dcc5b5;
+  --ctfd-surface-bright: #fff7f0;
+  --ctfd-surface-veil: rgb(255 247 240 / 0.78);
+  --ctfd-text: #2c1913;
+  --ctfd-text-soft: rgb(44 25 19 / 0.76);
+  --ctfd-text-muted: rgb(44 25 19 / 0.58);
+  --ctfd-primary: #d1713a;
+  --ctfd-primary-strong: #b95a29;
+  --ctfd-accent: #bc8730;
+  --ctfd-success: #7d8e44;
+  --ctfd-danger: #b9634f;
+  --ctfd-chart-tone-1: #d1713a;
+  --ctfd-chart-tone-2: #bc8730;
+  --ctfd-chart-tone-3: #7d8e44;
+  --ctfd-chart-tone-4: #c58765;
+  --ctfd-chart-tone-5: #a97828;
+  --ctfd-chart-tone-6: #647c34;
+  --ctfd-chart-surface: #fff8f2;
+  --ctfd-chart-text: #2c1913;
+  --ctfd-chart-text-muted: rgb(44 25 19 / 0.74);
+  --ctfd-chart-outline: rgb(44 25 19 / 0.16);
+  --ctfd-chart-grid: rgb(44 25 19 / 0.11);
+  --ctfd-outline: rgb(44 25 19 / 0.08);
   --bs-body-bg: var(--ctfd-surface);
   --bs-body-color: var(--ctfd-text);
   --bs-emphasis-color: var(--ctfd-text);
@@ -95,7 +102,7 @@
   --bs-border-color: transparent;
   --bs-primary: var(--ctfd-primary);
   --bs-secondary: var(--ctfd-accent);
-  --bs-info: #b77553;
+  --bs-info: #be7f5a;
   --bs-success: var(--ctfd-success);
   --bs-danger: var(--ctfd-danger);
   --bs-link-color: var(--ctfd-text);
@@ -1606,6 +1613,12 @@ input[type="file"].form-control:hover::file-selector-button {
   align-items: start;
 }
 
+.challenge-board-loading {
+  display: flex;
+  align-items: center;
+  min-height: 50vh;
+}
+
 .challenge-category-rail,
 .challenge-list-panel,
 .challenge-detail-shell {
@@ -1680,13 +1693,66 @@ input[type="file"].form-control:hover::file-selector-button {
 }
 
 .challenge-list-head {
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: start;
+}
+
+.challenge-list-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.challenge-quick-toggle,
+.challenge-detail-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--ctfd-outline) 78%, transparent);
+  border-radius: var(--ctfd-radius);
+  background: color-mix(in srgb, var(--ctfd-surface-highest) 50%, transparent);
+  color: var(--ctfd-text-soft);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  transition: border-color 180ms var(--ctfd-ease), color 180ms var(--ctfd-ease), background-color 180ms var(--ctfd-ease);
+}
+
+.challenge-quick-toggle:hover,
+.challenge-quick-toggle:focus-visible,
+.challenge-quick-toggle.is-active,
+.challenge-detail-nav:hover,
+.challenge-detail-nav:focus-visible {
+  border-color: color-mix(in srgb, var(--ctfd-primary) 36%, transparent);
+  background: color-mix(in srgb, var(--ctfd-primary) 14%, var(--ctfd-surface-highest));
+  color: var(--ctfd-primary);
+}
+
+.challenge-detail-nav:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.empty-state-compact {
+  padding: 1rem 1rem 0.9rem;
+  border: 1px dashed color-mix(in srgb, var(--ctfd-outline) 72%, transparent);
+  border-radius: var(--ctfd-radius);
+  background: color-mix(in srgb, var(--ctfd-surface-highest) 42%, transparent);
+}
+
+.empty-state-compact h3 {
+  margin-bottom: 0.3rem;
 }
 
 .challenge-stream {
   display: grid;
-  gap: 0.35rem;
+  gap: 0.25rem;
 }
 
 .challenge-stream-item {
@@ -1695,7 +1761,7 @@ input[type="file"].form-control:hover::file-selector-button {
   gap: 0.45rem;
   align-items: start;
   width: 100%;
-  padding: 0.9rem 0.75rem;
+  padding: 0.72rem 0.75rem;
   border: 1px solid transparent;
   border-radius: var(--ctfd-radius);
   background: transparent;
@@ -1717,7 +1783,7 @@ input[type="file"].form-control:hover::file-selector-button {
 
 .challenge-stream-copy {
   display: grid;
-  gap: 0.45rem;
+  gap: 0.35rem;
   min-width: 0;
 }
 
@@ -1731,7 +1797,7 @@ input[type="file"].form-control:hover::file-selector-button {
 .challenge-stream-copy p {
   margin: 0;
   font-family: var(--ctfd-font-display);
-  font-size: 1.08rem;
+  font-size: 1rem;
   line-height: 1.1;
 }
 
@@ -1759,6 +1825,21 @@ input[type="file"].form-control:hover::file-selector-button {
   position: sticky;
   top: calc(var(--ctfd-nav-height) + 1rem);
   min-height: 20rem;
+}
+
+.challenge-detail-toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 0.75rem;
+}
+
+.challenge-detail-position {
+  min-width: 3.6rem;
+  color: var(--ctfd-text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: center;
 }
 
 .challenge-detail-frame {
@@ -2433,6 +2514,11 @@ input[type="file"].form-control:hover::file-selector-button {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .challenge-detail-toolbar {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .challenge-submit-head {
     align-items: flex-start;
     flex-direction: column;
@@ -2473,6 +2559,10 @@ input[type="file"].form-control:hover::file-selector-button {
 @media (max-width: 767px) {
   .challenge-category-list {
     grid-template-columns: 1fr;
+  }
+
+  .challenge-list-tools {
+    justify-content: flex-start;
   }
 
   .challenge-stream-item {

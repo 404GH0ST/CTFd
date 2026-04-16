@@ -1,13 +1,8 @@
-function getThemeStatColors() {
-  const styles = getComputedStyle(document.documentElement);
-  return {
-    solve: styles.getPropertyValue("--ctfd-success").trim() || "#00d13f",
-    fail: styles.getPropertyValue("--ctfd-danger").trim() || "#cf2600",
-  };
-}
+import { getThemeChartColors, getThemeStatColors } from "../theme-palette";
 
 export function getSpec(description, values) {
   const colors = getThemeStatColors();
+  const chartColors = getThemeChartColors();
   return {
     $schema: "https://vega.github.io/schema/vega-lite/v5.json",
     description: description,
@@ -32,7 +27,7 @@ export function getSpec(description, values) {
           type: "arc",
           innerRadius: 50,
           outerRadius: 95,
-          stroke: "#fff",
+          stroke: chartColors.surfaceBright,
         },
         encoding: {
           opacity: {
@@ -72,7 +67,26 @@ export function getSpec(description, values) {
         },
         legend: {
           orient: "bottom",
+          labelColor: chartColors.textMuted,
+          titleColor: chartColors.text,
         },
+      },
+    },
+    config: {
+      style: {
+        "guide-label": {
+          font: chartColors.fontBody,
+        },
+        "guide-title": {
+          font: chartColors.fontBody,
+        },
+      },
+      text: {
+        color: chartColors.text,
+        font: chartColors.fontBody,
+      },
+      view: {
+        stroke: null,
       },
     },
   };

@@ -1,30 +1,11 @@
 import { mergeObjects } from "../../objects";
 import { cumulativeSum } from "../../math";
+import { getCartesianChartTheme } from "./chart-theme";
 import { getThemeSeriesColor } from "../theme-palette";
 import dayjs from "dayjs";
 
 export function getOption(mode, places, optionMerge) {
   let option = {
-    title: {
-      left: "center",
-      text: "Top 10 " + (mode === "teams" ? "Teams" : "Users"),
-    },
-    tooltip: {
-      trigger: "axis",
-      axisPointer: {
-        type: "cross",
-      },
-    },
-    legend: {
-      type: "scroll",
-      orient: "horizontal",
-      align: "left",
-      bottom: 35,
-      data: [],
-    },
-    grid: {
-      containLabel: true,
-    },
     xAxis: [
       {
         type: "time",
@@ -41,6 +22,23 @@ export function getOption(mode, places, optionMerge) {
   };
 
   const teams = Object.keys(places);
+  const legendData = teams.map(team => places[team].name);
+
+  option = mergeObjects(
+    getCartesianChartTheme({
+      legendData,
+      legendBottom: 35,
+    }),
+    option,
+  );
+
+  option.tooltip = mergeObjects(option.tooltip, {
+    trigger: "axis",
+    axisPointer: {
+      type: "cross",
+    },
+  });
+
   for (let i = 0; i < teams.length; i++) {
     const team_score = [];
     const times = [];
@@ -55,20 +53,21 @@ export function getOption(mode, places, optionMerge) {
       return [e, total_scores[i]];
     });
 
-    option.legend.data.push(places[teams[i]]["name"]);
-
     const data = {
       name: places[teams[i]]["name"],
       type: "line",
-      label: {
-        normal: {
-          position: "top",
-        },
+      showSymbol: false,
+      symbol: "circle",
+      symbolSize: 6,
+      lineStyle: {
+        width: 2.25,
+        color: getThemeSeriesColor(i),
       },
       itemStyle: {
-        normal: {
-          color: getThemeSeriesColor(i),
-        },
+        color: getThemeSeriesColor(i),
+      },
+      emphasis: {
+        focus: "series",
       },
       data: scores,
     };

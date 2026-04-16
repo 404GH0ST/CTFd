@@ -1,27 +1,18 @@
 import { mergeObjects } from "../../objects";
-
-function getThemeStatColors() {
-  const styles = getComputedStyle(document.documentElement);
-  return {
-    solve: styles.getPropertyValue("--ctfd-success").trim() || "rgb(0, 209, 64)",
-    fail: styles.getPropertyValue("--ctfd-danger").trim() || "rgb(207, 38, 0)",
-  };
-}
+import { getThemeChartColors, getThemeStatColors } from "../theme-palette";
 
 export function getOption(solves, fails, optionMerge) {
   const colors = getThemeStatColors();
+  const chartColors = getThemeChartColors();
   let option = {
-    title: {
-      left: "center",
-      text: "Solve Percentages",
-    },
     tooltip: {
       trigger: "item",
-    },
-    toolbox: {
-      show: true,
-      feature: {
-        saveAsImage: {},
+      backgroundColor: chartColors.surfaceBright,
+      borderColor: chartColors.outline,
+      borderWidth: 1,
+      textStyle: {
+        color: chartColors.text,
+        fontFamily: chartColors.fontBody,
       },
     },
     legend: {
@@ -29,6 +20,10 @@ export function getOption(solves, fails, optionMerge) {
       top: "middle",
       right: 0,
       data: ["Fails", "Solves"],
+      textStyle: {
+        color: chartColors.textMuted,
+        fontFamily: chartColors.fontBody,
+      },
     },
     series: [
       {
@@ -68,6 +63,8 @@ export function getOption(solves, fails, optionMerge) {
             show: true,
             fontSize: "30",
             fontWeight: "bold",
+            color: chartColors.text,
+            fontFamily: chartColors.fontBody,
           },
         },
         labelLine: {

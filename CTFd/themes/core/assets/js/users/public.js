@@ -1,9 +1,8 @@
 import CTFd from "../index";
 
 import Alpine from "alpinejs";
-import { getOption as getUserScoreOption } from "../utils/graphs/echarts/userscore";
-import { embed } from "../utils/graphs/echarts";
 import { buildCategoryBreakdown, getPercentage } from "../utils/profile-graphs";
+import { loadProfileChartRuntime } from "../utils/graphs/profile-chart-runtime";
 
 window.Alpine = Alpine;
 
@@ -48,18 +47,21 @@ Alpine.data("UserGraphs", () => ({
     this.failCount = this.fails.meta.count;
     this.awardCount = this.awards.meta.count;
 
-    let optionMerge = window.userScoreGraphChartOptions;
+    if (this.$refs.scoregraph) {
+      const { getOption, embed } = await loadProfileChartRuntime();
+      let optionMerge = window.userScoreGraphChartOptions;
 
-    embed(
-      this.$refs.scoregraph,
-      getUserScoreOption(
-        window.USER.id,
-        window.USER.name,
-        this.solves.data,
-        this.awards.data,
-        optionMerge,
-      ),
-    );
+      embed(
+        this.$refs.scoregraph,
+        getOption(
+          window.USER.id,
+          window.USER.name,
+          this.solves.data,
+          this.awards.data,
+          optionMerge,
+        ),
+      );
+    }
   },
 }));
 
