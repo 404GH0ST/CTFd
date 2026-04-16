@@ -1778,7 +1778,8 @@ input[type="file"].form-control:hover::file-selector-button {
 }
 
 .challenge-stream-item.is-active {
-  box-shadow: inset 3px 0 0 var(--ctfd-primary);
+  border-color: color-mix(in srgb, var(--ctfd-primary) 58%, transparent);
+  background: color-mix(in srgb, var(--ctfd-primary) 10%, var(--ctfd-surface-highest));
 }
 
 .challenge-stream-copy {
@@ -1803,6 +1804,10 @@ input[type="file"].form-control:hover::file-selector-button {
 
 .challenge-stream-item.is-active .challenge-stream-copy p {
   color: var(--ctfd-primary);
+}
+
+.challenge-stream-item.is-active .challenge-stream-points {
+  color: color-mix(in srgb, var(--ctfd-text) 80%, var(--ctfd-primary));
 }
 
 .challenge-stream-points {
