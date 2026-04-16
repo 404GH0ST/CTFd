@@ -3,9 +3,14 @@
   text-align: center;
 }
 
-// Add some default spacing to table cells
-.table > tbody > tr > td {
-  padding: 0.8rem 1rem;
+.table {
+  margin-bottom: 0;
+}
+
+.table > :not(caption) > * > * {
+  padding: 0.72rem 0.9rem;
+  border-color: var(--ctfd-outline);
+  vertical-align: middle;
 }
 
 // Add some padding from the edge of table
@@ -14,10 +19,46 @@
 }
 
 // Do not wrap text in table headers
-.table > thead > th {
+.table > thead > tr > th {
   white-space: nowrap;
+  color: var(--ctfd-text-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
-.table-responsive {
-  border-radius: 1.25rem;
+.table-scroll-shell {
+  overflow-x: auto;
+  border: 1px solid color-mix(in srgb, var(--ctfd-outline) 78%, transparent);
+  border-radius: var(--ctfd-radius);
+  background: color-mix(in srgb, var(--ctfd-surface-highest) 42%, transparent);
+}
+
+.table-scroll-shell .table {
+  min-width: 34rem;
+}
+
+.table-scroll-shell .table > thead > tr > th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: color-mix(in srgb, var(--ctfd-surface-high) 92%, transparent);
+  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--ctfd-outline) 88%, transparent);
+}
+
+.table-scroll-shell-directory .table {
+  min-width: 42rem;
+}
+
+.table-scroll-shell-scoreboard .table {
+  min-width: 32rem;
+}
+
+.table-scroll-shell-profile .table {
+  min-width: 34rem;
+}
+
+.table-scroll-shell .table-responsive {
+  border-radius: inherit;
 }

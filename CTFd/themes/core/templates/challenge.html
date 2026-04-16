@@ -7,6 +7,16 @@
   data-empty-solves-label="{{ _('No solves yet') }}"
   data-empty-solution-label="{{ _('No official write-up is available yet.') }}"
   data-rating-error-label="{{ _('We could not submit your rating. Please try again.') }}"
+  data-response-correct-label="{{ _('Correct') }}"
+  data-response-already-solved-label="{{ _('Already solved') }}"
+  data-response-incorrect-label="{{ _('Incorrect') }}"
+  data-response-paused-label="{{ _('Paused') }}"
+  data-response-ratelimited-label="{{ _('Rate limited') }}"
+  data-response-correct-note="{{ _('Flag accepted and progress recorded.') }}"
+  data-response-already-solved-note="{{ _('You already solved this challenge, but you can keep browsing here.') }}"
+  data-response-incorrect-note="{{ _('That flag was not accepted. Check formatting and try again.') }}"
+  data-response-paused-note="{{ _('Submissions are currently paused for this challenge.') }}"
+  data-response-ratelimited-note="{{ _('Slow down and try again in a moment.') }}"
 >
   <div class="challenge-detail-header">
     <div class="challenge-detail-topbar">
@@ -30,23 +40,25 @@
           </div>
         {% endif %}
 
-        <small class="challenge-attribution text-muted">
-          {% block attribution %}{{ challenge.byline }}{% endblock %}
-        </small>
+        <div class="challenge-meta-strip">
+          <small class="challenge-attribution text-muted">
+            {% block attribution %}{{ challenge.byline }}{% endblock %}
+          </small>
 
-        {% if challenge.connection_info %}
-        <div class="challenge-inline-meta">
-          <div class="challenge-inline-block">
-            <span class="challenge-inline-label">{% trans %}Access{% endtrans %}</span>
-            {% set conn = challenge.connection_info %}
-            {% if conn.startswith("http") %}
-              <a href="{{ conn }}" target="_blank" rel="noopener noreferrer">{{ conn }}</a>
-            {% else %}
-              <code>{{ conn }}</code>
-            {% endif %}
+          {% if challenge.connection_info %}
+          <div class="challenge-inline-meta">
+            <div class="challenge-inline-block">
+              <span class="challenge-inline-label">{% trans %}Access{% endtrans %}</span>
+              {% set conn = challenge.connection_info %}
+              {% if conn.startswith("http") %}
+                <a href="{{ conn }}" target="_blank" rel="noopener noreferrer">{{ conn }}</a>
+              {% else %}
+                <code>{{ conn }}</code>
+              {% endif %}
+            </div>
           </div>
+          {% endif %}
         </div>
-        {% endif %}
 
         {% if Configs.challenge_ratings == "public" %}
         <small class="challenge-ratings text-muted d-block">
@@ -81,7 +93,10 @@
 
     {% if hints %}
       <div class="challenge-panel challenge-panel-subtle challenge-hints">
-        <p class="eyebrow">{% trans %}Hints{% endtrans %}</p>
+        <div class="challenge-support-head">
+          <p class="eyebrow">{% trans %}Hints{% endtrans %}</p>
+          <span class="challenge-support-count">{{ hints|length }}</span>
+        </div>
         {% for hint in hints | sort(attribute="cost") %}
           <div x-data="Hint" x-init="id = {{ hint.id }}">
             {% if hint.content %}
@@ -106,7 +121,10 @@
 
     {% if files %}
       <div class="challenge-panel challenge-panel-subtle challenge-files" {% if files|length == 1 %}data-compact="true"{% endif %}>
-        <p class="eyebrow">{% trans %}Files{% endtrans %}</p>
+        <div class="challenge-support-head">
+          <p class="eyebrow">{% trans %}Files{% endtrans %}</p>
+          <span class="challenge-support-count">{{ files|length }}</span>
+        </div>
         <div class="challenge-files-grid">
         {% for file in files %}
           <div class="file-button-wrapper d-block">
@@ -172,16 +190,21 @@
         </div>
       </div>
 
+      <div class="challenge-response-region" :class="{ 'has-response': !!response }">
       <template x-if="response">
-        <div class="alert challenge-response-shell w-100 mt-3"
+        <div class="alert challenge-response-shell w-100"
             :class="{
               'alert-success': response.data.status == 'correct',
               'alert-info': response.data.status == 'already_solved',
               'alert-danger': response.data.status == 'incorrect',
-              'alert-warning': response.data.status == 'paused',
+              'alert-warning': response.data.status == 'paused' || response.data.status == 'ratelimited',
             }" role="alert"
         >
-          <strong class="challenge-response-title" x-text="response.data.message"></strong>
+          <div class="challenge-response-header">
+            <span class="challenge-response-state" x-text="responseStatusLabel()"></span>
+            <strong class="challenge-response-title" x-text="response.data.message"></strong>
+            <p class="challenge-response-note" x-text="responseStatusNote()"></p>
+          </div>
           <div x-show="(response.data.status == 'correct' || response.data.status == 'already_solved')">
             <div class="challenge-response-actions" x-show="getNextId()">
               <button @click="nextChallenge()" class="btn btn-primary">
@@ -264,6 +287,7 @@
           </div>
         </div>
       </template>
+      </div>
     </div>
 
     <div class="challenge-secondary-sections">
@@ -272,12 +296,13 @@
         <summary>
           <div class="challenge-secondary-summary">
             <span>{% trans %}Submissions{% endtrans %}</span>
-            <small>{% trans %}Review your previous attempts{% endtrans %}</small>
+            <small>{% trans %}Previous attempts and timestamps{% endtrans %}</small>
           </div>
         </summary>
         <div class="challenge-secondary-body">
           <div class="challenge-secondary-status" x-show="submissionsLoading" x-text="labels.loadingLabel"></div>
           <div class="challenge-secondary-status" x-show="submissionsLoaded && submissions.length === 0" x-text="labels.emptySubmissionsLabel"></div>
+          <div class="challenge-table-wrap">
           <table class="table table-striped align-middle text-center">
             <thead x-show="submissions.length > 0">
             <tr>
@@ -301,6 +326,7 @@
             </template>
             </tbody>
           </table>
+          </div>
         </div>
       </details>
       {% endif %}
@@ -310,12 +336,13 @@
         <summary>
           <div class="challenge-secondary-summary">
             <span>{{ ngettext("%(num)d Solve", "%(num)d Solves", solves) }}</span>
-            <small>{% trans %}See who already cleared it{% endtrans %}</small>
+            <small>{% trans %}People who already cleared it{% endtrans %}</small>
           </div>
         </summary>
         <div class="challenge-secondary-body">
           <div class="challenge-secondary-status" x-show="solvesLoading" x-text="labels.loadingLabel"></div>
           <div class="challenge-secondary-status" x-show="solvesLoaded && solves.length === 0" x-text="labels.emptySolvesLabel"></div>
+          <div class="challenge-table-wrap">
           <table class="table table-striped align-middle text-center">
             <thead x-show="solves.length > 0">
             <tr>
@@ -334,6 +361,7 @@
             </template>
             </tbody>
           </table>
+          </div>
         </div>
       </details>
       {% endif %}
@@ -342,7 +370,7 @@
         <summary>
           <div class="challenge-secondary-summary">
             <span>{% trans %}Solution{% endtrans %}</span>
-            <small>{% trans %}Open the official write-up{% endtrans %}</small>
+            <small>{% trans %}Official write-up and intended path{% endtrans %}</small>
           </div>
         </summary>
         <div class="challenge-secondary-body">

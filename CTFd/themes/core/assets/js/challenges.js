@@ -279,6 +279,40 @@ Alpine.data("Challenge", () => ({
       this.ratingError = this.labels.ratingErrorLabel;
     }
   },
+
+  responseStatusLabel() {
+    if (!this.response) {
+      return "";
+    }
+
+    const status = this.response.data.status;
+    const labelMap = {
+      correct: this.labels.responseCorrectLabel,
+      already_solved: this.labels.responseAlreadySolvedLabel,
+      incorrect: this.labels.responseIncorrectLabel,
+      paused: this.labels.responsePausedLabel,
+      ratelimited: this.labels.responseRatelimitedLabel,
+    };
+
+    return labelMap[status] || this.response.data.message;
+  },
+
+  responseStatusNote() {
+    if (!this.response) {
+      return "";
+    }
+
+    const status = this.response.data.status;
+    const noteMap = {
+      correct: this.labels.responseCorrectNote,
+      already_solved: this.labels.responseAlreadySolvedNote,
+      incorrect: this.labels.responseIncorrectNote,
+      paused: this.labels.responsePausedNote,
+      ratelimited: this.labels.responseRatelimitedNote,
+    };
+
+    return noteMap[status] || "";
+  },
 }));
 
 Alpine.data("ChallengeBoard", () => ({

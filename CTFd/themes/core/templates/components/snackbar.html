@@ -3,13 +3,13 @@
     id="ctfdio-snackbar-email-nudge"
     x-data="{ dismissed: false }"
     x-show="!dismissed && window.init.userId && !window.init.userVerified && localStorage.getItem('remind_email_verify') != window.init.userId && (!['/team', '/teams/join', '/teams/new'].includes(window.location.pathname) || window.init.teamId != null)"
-    class="alert alert-info alert-dismissible col-md-4 col-10 position-fixed text-center m-0 ctfdio-email-nudge"
+    class="alert alert-info alert-dismissible ctfdio-snackbar ctfdio-email-nudge"
     role="alert"
 >
-  <small>
+  <div class="ctfdio-snackbar-copy">
     <strong>{% trans %}Email unconfirmed{% endtrans %}</strong><br>
     <span>{% trans confirm_url=url_for('auth.confirm', flow='init') %}To confirm your email address, <a href="{{ confirm_url }}">click here</a>.{% endtrans %}</span>
-  </small>
+  </div>
   <button type="button" class="btn-close" @click="localStorage.setItem('remind_email_verify', window.init.userId); dismissed = true;" aria-label="{% trans %}Close{% endtrans %}"></button>
 </div>
 {% endif %}
