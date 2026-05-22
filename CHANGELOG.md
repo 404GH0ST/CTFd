@@ -1,3 +1,34 @@
+# 3.8.5 / 2026-05-19
+
+**Security**
+
+- Fix issue where the safe URL redirect validator could be bypassed on certain browsers possibly allowing an attacker the ability to phish other users
+
+**Translations**
+
+- Add Indonesian translations
+
+**API**
+
+- Fix issue when updating a challenge where `initial`, `minimum`, and `decay` could not be set to `NULL` even if the challenge function is `static`
+
+**Deployment**
+
+- Fix issue with subdirectory deployments where users could not authenticate on certain server configurations
+
+# 3.8.4 / 2026-04-20
+
+**Security**
+
+- Fix issue where partially attacker controlled links could be served to other users possibly resulting in arbitrary JavaScript execution if those links are clicked
+- Fix issue where the safe URL redirect validator could be bypassed possibly allowing an attacker the ability to phish other users
+
+**Deployment**
+
+- The `REVERSE_PROXY` config when set to `true` will now default to `1,1,1,1,0` instead of `1,1,1,1,1`
+- Update Pillow version to 12.2.0
+- Update mako version to 1.3.11
+
 # 3.8.3 / 2026-04-10
 
 **General**
